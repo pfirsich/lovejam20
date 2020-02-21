@@ -8,5 +8,7 @@ lt = love.timer
 inspect = require("libs.inspect")
 
 -- I need these almost everywhere
+assets = require("assets")
 class = require("libs.class")
 const = require("const")
+util = require("util")

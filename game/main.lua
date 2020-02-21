@@ -2,10 +2,15 @@ require("globals") -- schmutz!
 require("libs.strict")
 
 local scenes = require("scenes")
-local util = require("util")
+
+assetList = {
+    assets.image("handSponge"),
+    assets.image("handCloth"),
+}
 
 function love.load(arg)
     const.reload()
+    assets.load(assetList)
 
     scenes.require()
     for name, scene in pairs(scenes) do
@@ -14,7 +19,7 @@ function love.load(arg)
         scene.frameCounter = 0
         util.callNonNil(scene.load)
     end
-    scenes.enter(scenes.game)
+    scenes.enter(scenes.clean)
 end
 
 function love.update(dt)
@@ -43,7 +48,7 @@ function love.run()
 	return function()
         local scene = scenes.current
         while scene.simTime <= scene.realTime do
-            scene.simTime = scene.simTime + const.SIM_DT
+            scene.simTime = scene.simTime + const.simDt
             scene.frameCounter = scene.frameCounter + 1
 
             if love.event then
@@ -61,7 +66,7 @@ function love.run()
                 end
             end
 
-            love.update(const.SIM_DT)
+            love.update(const.simDt)
             util.callNonNil(scene.tick)
         end
  
