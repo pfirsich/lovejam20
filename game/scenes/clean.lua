@@ -29,8 +29,7 @@ function scene.enter()
 end
 
 -- returns if mouse changed direction
-local function updateMouseVel()
-    local mx, my = love.mouse.getPosition()
+local function updateMouseVel(mx, my)
     local lastVelX, lastVelY = mouseVelX, mouseVelY
     mouseVelX, mouseVelY = mx - lastMouseX, my - lastMouseY
     lastMouseX, lastMouseY = mx, my
@@ -53,13 +52,16 @@ end
 
 function scene.tick()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
-    local mouseSwitched = updateMouseVel()
+    local lastMx, lastMy = lastMouseX, lastMouseY
+    local mouseSwitched = updateMouseVel(mx, my)
     for y = 1, #dirtTiles do
         for x = 1, #dirtTiles[y] do
             local tile = dirtTiles[y][x]
             local tw, th = const.resX / const.dirtTilesX, const.resY / const.dirtTilesY
             local tx, ty = (x - 1) * tw, (y - 1) * th
-            local inRect = util.math.inRect(mx, my, tx, ty, tw, th)
+            local inRect = util.math.lineIntersectRect(
+                lastMx, lastMy, mx, my,
+                tx, ty, tw, th)
             local tileTouched = inRect and (not tile.lastMouseInRect or mouseSwitched)
             tile.touches[tile.nextTouchIndex] = tileTouched
             tile.nextTouchIndex = tile.nextTouchIndex + 1
