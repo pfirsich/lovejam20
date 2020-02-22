@@ -18,3 +18,5 @@ assets = require("assets")
 class = require("libs.class")
 const = require("const")
 util = require("util")
+
+const.reload()

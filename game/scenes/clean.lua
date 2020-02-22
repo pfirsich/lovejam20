@@ -1,5 +1,6 @@
 local dirtgen = require("dirtgen")
 local DirtFsm = require("dirtfsm")
+local FreqMeasure = require("freqmeasure")
 
 local scene = {}
 
@@ -20,7 +21,7 @@ local mouseVelX, mouseVelY = 0, 0
 
 local mouseHistory = {}
 
-local totalScrubHistory = {}
+local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
 
 function scene.enter()
     dirtTiles = dirtgen.generate {
@@ -37,8 +38,7 @@ function scene.enter()
     }
     for y = 1, #dirtTiles do
         for x = 1, #dirtTiles[y] do
-            dirtTiles[y][x].scrubs = {}
-            dirtTiles[y][x].nextScrubIndex = 1
+            dirtTiles[y][x].scrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
             dirtTiles[y][x].lastMouseInRect = false
             if #dirtTiles[y][x].dirtTypes > 0 then
                 dirtTiles[y][x].dirtFsm = DirtFsm(
@@ -46,18 +46,6 @@ function scene.enter()
             end
         end
     end
-end
-
-local function getPastScrub(x, y, index)
-    local tile = dirtTiles[y] and dirtTiles[y][x]
-    if not tile or #tile.scrubs == 0 then
-        return false
-    end
-    local idx = tile.nextScrubIndex - index
-    if idx < 1 then
-        idx = #tile.scrubs + idx
-    end
-    return tile.scrubs[idx]
 end
 
 -- return true if scrub in place
@@ -103,20 +91,13 @@ local function count(list)
     return n
 end
 
-local function getScrubFrequency(tile)
-    return count(tile.scrubs) / const.scrubHistoryLen
-end
-
 local function scrub()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     local lastMouse = mouseHistory[#mouseHistory] or {x = mx, y = my}
     local scrubInPlace = updateMouseHistory(mx, my)
     if scrubInPlace then
         assets.scrub:play():setPitch(util.math.randDeviate(1.0, 0.05))
-    end
-    table.insert(totalScrubHistory, scrubInPlace)
-    if #totalScrubHistory > const.scrubHistoryLen / const.simDt then
-        table.remove(totalScrubHistory, 1)
+        totalScrubFreqMeas:event(scene.simTime)
     end
 
     for y = 1, #dirtTiles do
@@ -128,14 +109,10 @@ local function scrub()
                 lastMouse.x, lastMouse.y, mx, my,
                 tx, ty, tileSize, tileSize)
             local tileScrubbed = inRect and (not tile.lastMouseInRect or scrubInPlace)
-            tile.scrubs[tile.nextScrubIndex] = tileScrubbed
-            tile.nextScrubIndex = tile.nextScrubIndex + 1
-            local maxScrubs = const.scrubHistoryLen / const.simDt
-            if tile.nextScrubIndex > maxScrubs then
-                tile.nextScrubIndex = 1
-            end
             if tileScrubbed and tile.dirtFsm then
-                if tile.dirtFsm:scrub(currentTool, getScrubFrequency(tile)) then
+                tile.scrubFreqMeas:event(scene.simTime)
+
+                if tile.dirtFsm:scrub(currentTool, tile.scrubFreqMeas:get(scene.simTime)) then
                     -- state changed
                     if tile.dirtFsm.state == "clean" then
                         table.remove(tile.dirtTypes)
@@ -156,11 +133,6 @@ end
 function scene.tick()
     if love.mouse.isDown(1) then
         scrub()
-    else
-        table.insert(totalScrubHistory, false)
-        if #totalScrubHistory > const.scrubHistoryLen / const.simDt then
-            table.remove(totalScrubHistory, 1)
-        end
     end
 
     for y = 1, #dirtTiles do
@@ -169,8 +141,11 @@ function scene.tick()
             if tile.dirtFsm then
                 tile.dirtFsm:update(const.simDt)
             end
+            tile.scrubFreqMeas:truncate(scene.simTime)
         end
     end
+
+    totalScrubFreqMeas:truncate(scene.simTime)
 end
 
 function scene.keypressed(key)
@@ -179,15 +154,6 @@ function scene.keypressed(key)
     elseif key == "e" then
         currentTool = "cloth"
     end
-end
-
-local function getRecentlyScrubbed(x, y, pastFrames)
-    for i = 1, pastFrames do
-        if getPastScrub(x, y, i) then
-            return true
-        end
-    end
-    return false
 end
 
 function scene.draw(dt)
@@ -201,20 +167,16 @@ function scene.draw(dt)
                 for _, dirtType in ipairs(tile.dirtTypes) do
                     lg.setColor(tile.dirtFsm:getColor())
                     lg.draw(assets[dirtType], tx, ty)
-                    -- if dirtType == "goo" then
-                    --     lg.setColor(1, 0, 1)
-                    -- elseif dirtType == "specks" then
-                    --     lg.setColor(0, 1, 0)
-                    -- end
-                    -- lg.rectangle("fill", tx, ty, tileSize, tileSize)
                 end
 
                 lg.setColor(0, 0, 1)
-                if getRecentlyScrubbed(x, y, math.floor(0.1 * const.scrubHistoryLen / const.simDt)) then
+                local recentlyScrubbed = #tile.scrubFreqMeas > 0
+                    and tile.scrubFreqMeas.samples[1] > scene.simTime - 0.1
+                if recentlyScrubbed then
                     lg.setColor(1, 0, 0)
                 end
                 lg.rectangle("line", tx, ty, tileSize, tileSize)
-                local text = ("%.2f"):format(getScrubFrequency(tile))
+                local text = ("%.2f"):format(tile.scrubFreqMeas:get(scene.simTime))
                 if #tile.dirtTypes > 0 then
                     text = text .. ("\n%s\n%s\n%s"):format(
                         tile.dirtTypes[#tile.dirtTypes],
@@ -242,7 +204,26 @@ function scene.draw(dt)
         local imgW, imgH = image:getDimensions()
         lg.draw(image, mx, my, 0, 1, 1, imgW/2, imgH/2)
 
-        local scrubFreq = count(totalScrubHistory) / const.scrubHistoryLen
+        local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
+
+        local gaugeX = mx + const.gaugeOffset[1] - const.gaugeWidth / 2
+        local gaugeY = my + const.gaugeOffset[2]
+        lg.setColor(0, 0, 0)
+        lg.rectangle("fill", gaugeX, gaugeY, const.gaugeWidth, const.gaugeHeight)
+        local scrubAmount = util.math.clamp(scrubFreq / 9.0)
+        if scrubAmount < 0.33333 then
+            lg.setColor(0, 1, 0)
+        elseif scrubAmount < 0.6666 then
+            lg.setColor(1, 1, 0)
+        else
+            lg.setColor(1, 0, 0)
+        end
+        lg.rectangle("fill", gaugeX, gaugeY,
+            math.floor(const.gaugeWidth * scrubAmount),
+            math.floor(const.gaugeHeight))
+        lg.rectangle("line", gaugeX, gaugeY, const.gaugeWidth, const.gaugeHeight)
+
+        lg.setColor(1, 1, 1)
         lg.print(("Scrub Frequency: %.1f Hz"):format(scrubFreq), 5, const.resY - 15)
     end)
 end

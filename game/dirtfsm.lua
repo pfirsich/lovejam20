@@ -15,15 +15,14 @@ local scrubSpeeds = {
     -- {min, max}
     slow = {0.4, 3.0},
     brisk = {3.0, 6.0},
-    fast = {6.0, 9.0},
-    furious = {10.0, 100.0},
+    fast = {6.0, 100.0},
 }
 
 local dirtFsmData = {
     goo = {
         states = {
             {name = "init"},
-            {name = "softened", timeout = 5.0, color = {1, 0, 1, 0.8}},
+            {name = "softened", color = {1, 0, 1, 0.8}},
             {name = "clean", color = {1, 1, 1, 0.3}},
         },
         transitions = {
@@ -41,7 +40,7 @@ local dirtFsmData = {
             {name = "clean", color = {1, 1, 1, 0.7}},
         },
         transitions = {
-            transition("init", "clean", "sponge", "furious", 1.0, {
+            transition("init", "clean", "sponge", "fast", 1.0, {
                 {"cleanerA", 0.2, 1.0},
             })
         }
