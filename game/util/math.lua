@@ -67,4 +67,18 @@ function m.randDeviate(base, deviation)
     return m.randf(base - deviation, base + deviation)
 end
 
+function m.avg(...)
+    local v = 0
+    local n = select("#", ...)
+    for i = 1, n do
+        local _v = select(i, ...)
+        v = v + _v
+    end
+    return v / n
+end
+
+function m.lerp(a, b, t)
+    return a * (1 - t) + b * t
+end
+
 return m

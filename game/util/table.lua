@@ -47,6 +47,19 @@ function tblUtil.inList(list, elem)
     return tblUtil.indexOf(list, elem) ~= nil
 end
 
+function tblUtil.hasKey(tbl, key)
+    return tblUtil.indexOf(tblUtil.keys(tbl), key) ~= nil
+end
+
+function tblUtil.findKeyValue(tbl, k, v)
+    for i, elem in pairs(tbl) do
+        if elem[k] == v then
+            return i, elem
+        end
+    end
+    return nil, nil
+end
+
 function tblUtil.inverseTable(tbl)
     local ret = {}
     for k, v in pairs(tbl) do

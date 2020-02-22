@@ -3,9 +3,15 @@ lf = love.filesystem
 lg = love.graphics
 lk = love.keyboard
 lt = love.timer
+lm = love.math
 
 -- I want to be able to use this anytime for ez debugging
 inspect = require("libs.inspect")
+
+-- f = flat
+function finspect(t)
+    return inspect(t, {newline = "", indent = ""})
+end
 
 -- I need these almost everywhere
 assets = require("assets")

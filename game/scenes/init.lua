@@ -19,7 +19,7 @@ function mod.require()
     for _, item in ipairs(lf.getDirectoryItems("scenes")) do
         local path = "scenes/" .. item
 
-        if lf.getInfo(path, "file") and item ~= "init.lua" then
+        if lf.getInfo(path, "file") and item:sub(-4) == ".lua" and item ~= "init.lua" then
             local name = item:sub(1, -5)
             assert(name ~= "current" and name ~= "enter" and name ~= "require")
             scenes[name] = require("scenes." .. name)

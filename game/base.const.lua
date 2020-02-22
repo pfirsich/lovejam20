@@ -3,10 +3,7 @@ return {
     resX = 640,
     resY = 360,
 
-    --dirtTilesX = 10,
-    --dirtTilesY = 6,
-    dirtTilesX = 3,
-    dirtTilesY = 3,
-    touchHistoryLen = 5, -- in seconds
+    dirtTileSize = 64,
+    scrubHistoryLen = 4, -- in seconds
     mouseHistoryLen = 0.2, -- seconds
 }
