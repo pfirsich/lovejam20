@@ -20,6 +20,7 @@ function assets.load(list)
     for _, asset in ipairs(list) do
         if asset.type == "image" then
             assets[asset.name] = lg.newImage(asset.path)
+            assets[asset.name]:setFilter("nearest", "nearest")
         elseif asset.type == "sound" then
             assets[asset.name] = love.audio.newSource(asset.path, "static")
         else

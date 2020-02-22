@@ -17,7 +17,15 @@ assetList = {
     assets.image("specks"),
     assets.image("transitions"),
 
+    assets.image("bubble1"),
+    assets.image("bubble2"),
+
+    assets.image("sparkle1"),
+    assets.image("sparkle2"),
+
     assets.sound("scrub"),
+    assets.sound("spray"),
+    assets.sound("sparkle"),
 }
 
 function love.load(arg)

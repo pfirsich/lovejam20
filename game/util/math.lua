@@ -81,4 +81,23 @@ function m.lerp(a, b, t)
     return a * (1 - t) + b * t
 end
 
+function m.randCircle(x, y, radius)
+    while true do
+        local cx = m.randf(-radius, radius)
+        local cy = m.randf(-radius, radius)
+        if cx*cx + cy*cy < radius*radius then
+            return x + cx, y + cy
+        end
+    end
+end
+
+function m.circleInRect(cx, cy, radius, rx, ry, rw, rh)
+    -- closest point to circle center inside rect
+    local closestX = m.clamp(cx, rx, rx + rw)
+    local closestY = m.clamp(cy, ry, ry + rh)
+    local relX = closestX - cx
+    local relY = closestY - cy
+    return relX*relX + relY*relY < radius*radius
+end
+
 return m

@@ -1,5 +1,6 @@
 local dirtgen = require("dirtgen")
 local FreqMeasure = require("freqmeasure")
+local particles = require("particles")
 
 local scene = {}
 
@@ -13,11 +14,14 @@ local tools = {
 }
 local currentTool = "sponge"
 
+local showDebug = false
+
+-- yes, I am serious
+local cleanerParticles = {}
+
 local dirt = nil
 
 local lastMouseX, lastMouseY = 0, 0
-local mouseVelX, mouseVelY = 0, 0
-
 local mouseHistory = {}
 
 local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
@@ -130,7 +134,18 @@ local function scrub()
                 tile.scrubFreqMeas:event(scene.simTime)
 
                 local layerIdx, topLayer = pickTopLayer(x, y)
-                if topLayer and topLayer.fsm:scrub(currentTool, tile.scrubFreqMeas:get(scene.simTime)) then
+                if topLayer then
+                    local match = topLayer.fsm:scrub(currentTool, tile.scrubFreqMeas:get(scene.simTime))
+                    if match then
+                        local sparkleImage = util.table.randomChoice({
+                            assets.sparkle1, assets.sparkle2})
+                        local sx = mx + util.math.randf(-10, 10)
+                        local sy = my + util.math.randf(-10, 10)
+                        particles.spawn("sparkles", sparkleImage, sx, sy, 0.2)
+                        local sound = assets.sparkle:play()
+                        sound:setPitch(util.math.randDeviate(1.0, 0.1))
+                        sound:setVolume(0.3)
+                    end
                     -- state changed
                     if topLayer.fsm.state == "clean" then
                         -- remove the layer
@@ -139,6 +154,35 @@ local function scrub()
                 end
             end
             tile.lastMouseInRect = inRect
+        end
+    end
+end
+
+local function applyCleaner(cleaner)
+    local images = {assets.bubble1, assets.bubble2}
+    local radius = 150
+    local area = 2 * math.pi * radius * radius
+    local num = math.floor(area / 4096) * 2
+    local mx, my = util.gfx.getMouse(const.resX, const.resY)
+    for i = 1, num do
+        local x, y = util.math.randCircle(mx, my, radius)
+        local particle = particles.spawn("bubbles",
+            util.table.randomChoice(images), x, y, 4.0, false, 1)
+        particle.color = {unpack(const.cleanerColors[cleaner])}
+    end
+    assets.spray:play():setPitch(util.math.randDeviate(1.0, 0.1))
+
+    for y = 1, #dirt.tiles do
+        for x = 1, #dirt.tiles[y] do
+            local tileSize = const.dirtTileSize
+            local tx, ty = (x - 1) * tileSize, (y - 1) * tileSize
+
+            if util.math.circleInRect(mx, my, radius, tx, ty, tileSize, tileSize) then
+                local layerIdx, topLayer = pickTopLayer(x, y)
+                if topLayer then
+                    topLayer.fsm:applyCleaner(cleaner)
+                end
+            end
         end
     end
 end
@@ -156,6 +200,17 @@ function scene.tick()
     end
 
     totalScrubFreqMeas:truncate(scene.simTime)
+
+    particles.update("bubbles", const.simDt, function(bubble)
+        local alpha = 0.7
+        if bubble.lifetime < 1.0 then
+            alpha = util.math.clamp(bubble.lifetime) * 0.7
+        end
+        bubble.color[4] = alpha
+    end)
+
+    particles.update("sparkles", const.simDt, function(sparkle)
+    end)
 end
 
 function scene.keypressed(key)
@@ -163,10 +218,18 @@ function scene.keypressed(key)
         currentTool = "sponge"
     elseif key == "e" then
         currentTool = "cloth"
+    elseif key == "g" then
+        applyCleaner("cleanerA")
+    elseif key == "f" then
+        applyCleaner("cleanerB")
+    elseif key == "d" then
+        applyCleaner("cleanerC")
+    end
+
+    if key == "return" then
+        showDebug = not showDebug
     end
 end
-
-
 
 local tileOffsets = {
     {-1, -1}, {0, -1}, {1, -1},
@@ -190,6 +253,7 @@ end
 
 function scene.draw(dt)
     util.gfx.pixelCanvas(const.resX, const.resY, {0.1, 0.1, 0.1}, function(dt)
+        lg.setScissor(0, 0, #dirt.tiles[1] * const.dirtTileSize, #dirt.tiles * const.dirtTileSize)
         for y = 1, #dirt.tiles do
             for x = 1, #dirt.tiles[y] do
                 local tile = dirt.tiles[y][x]
@@ -223,27 +287,35 @@ function scene.draw(dt)
                     end
                 end
 
-                lg.setShader()
-                lg.setColor(0, 0, 1)
-                local recentlyScrubbed = #tile.scrubFreqMeas > 0
-                    and tile.scrubFreqMeas.samples[1] > scene.simTime - 0.1
-                if recentlyScrubbed then
-                    lg.setColor(1, 0, 0)
+                if showDebug then
+                    lg.setShader()
+                    lg.setColor(0, 0, 1)
+                    local recentlyScrubbed = #tile.scrubFreqMeas > 0
+                        and tile.scrubFreqMeas.samples[1] > scene.simTime - 0.1
+                    if recentlyScrubbed then
+                        lg.setColor(1, 0, 0)
+                    end
+                    lg.rectangle("line", tx, ty, tileSize, tileSize)
+                    local text = ("%.2f"):format(tile.scrubFreqMeas:get(scene.simTime))
+                    local layerIdx, topLayer = pickTopLayer(x, y)
+                    if topLayer then
+                        local dirtType = dirt.layerData[layerIdx].dirtType
+                        text = text .. ("\n%s\n%s\n%s"):format(
+                            dirtType,
+                            topLayer.fsm.state,
+                            finspect(topLayer.fsm.progress))
+                    end
+                    lg.print(text, tx + 2, ty + 2)
                 end
-                lg.rectangle("line", tx, ty, tileSize, tileSize)
-                local text = ("%.2f"):format(tile.scrubFreqMeas:get(scene.simTime))
-                local layerIdx, topLayer = pickTopLayer(x, y)
-                if topLayer then
-                    local dirtType = dirt.layerData[layerIdx].dirtType
-                    text = text .. ("\n%s\n%s\n%s"):format(
-                        dirtType,
-                        topLayer.fsm.state,
-                        finspect(topLayer.fsm.progress))
-                end
-                lg.print(text, tx + 2, ty + 2)
             end
         end
 
+        lg.setShader()
+
+        lg.setColor(1, 1, 1)
+        particles.draw("bubbles")
+
+        lg.setScissor()
         lg.setColor(0, 1, 0)
         local points = {}
         for _, mousePos in ipairs(mouseHistory) do
@@ -261,8 +333,10 @@ function scene.draw(dt)
         local imgW, imgH = image:getDimensions()
         lg.draw(image, mx, my, 0, 1, 1, imgW/2, imgH/2)
 
-        local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
+        lg.setColor(1, 1, 1)
+        particles.draw("sparkles")
 
+        local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
         local gaugeX = mx + const.gaugeOffset[1]
         local gaugeY = my + const.gaugeOffset[2]
         local scrubAmount = util.math.clamp(scrubFreq / 9.0)

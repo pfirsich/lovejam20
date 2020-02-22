@@ -53,6 +53,7 @@ function DirtFsm:initialize(dirtType)
     assert(self.fsmData.states[1].name == "init")
     assert(self.fsmData.states[#self.fsmData.states].name == "clean")
     self:enter("init")
+    self.cleaners = {}
 end
 
 function DirtFsm:getStateData(name)
@@ -69,39 +70,43 @@ function DirtFsm:enter(state)
 end
 
 function DirtFsm:getColor()
-    local totalProgress = 0
-    local maxProgress = 0
-    for _, progress in pairs(self.progress) do
-        totalProgress = totalProgress + progress
-        maxProgress = math.max(maxProgress, progress)
-    end
+    return self:getStateData().color or {1, 1, 1, 1}
 
-    -- weighted average of target color
-    local targetColor = {0, 0, 0, 0}
-    for targetState, progress in pairs(self.progress) do
-        local color = self:getStateData(targetState).color or {1, 1, 1, 1}
-        for i = 1, 4 do
-            targetColor[i] = targetColor[i] + progress / totalProgress * color[i]
-        end
-        totalProgress = totalProgress + progress
-    end
+    -- local totalProgress = 0
+    -- local maxProgress = 0
+    -- for _, progress in pairs(self.progress) do
+    --     totalProgress = totalProgress + progress
+    --     maxProgress = math.max(maxProgress, progress)
+    -- end
 
-    -- lerp original color and target color with max progress
-    local color = {unpack(self:getStateData().color or {1, 1, 1, 1})}
-    for i = 1, 4 do
-        color[i] = util.math.lerp(color[i], targetColor[i], maxProgress)
-    end
+    -- -- weighted average of target color
+    -- local targetColor = {0, 0, 0, 0}
+    -- for targetState, progress in pairs(self.progress) do
+    --     local color = self:getStateData(targetState).color or {1, 1, 1, 1}
+    --     for i = 1, 4 do
+    --         targetColor[i] = targetColor[i] + progress / totalProgress * color[i]
+    --     end
+    --     totalProgress = totalProgress + progress
+    -- end
 
-    return color
+    -- -- lerp original color and target color with max progress
+    -- local color = {unpack(self:getStateData().color or {1, 1, 1, 1})}
+    -- for i = 1, 4 do
+    --     color[i] = util.math.lerp(color[i], targetColor[i], maxProgress)
+    -- end
+
+    -- return color
 end
 
 function DirtFsm:scrub(tool, frequency)
+    local anyMatch = false
     for _, transition in ipairs(self.fsmData.transitions) do
         local freqMin, freqMax = unpack(scrubSpeeds[transition.scrubSpeed])
         local match = transition.from == self.state
             and transition.tool == tool
             and frequency > freqMin and frequency < freqMax
         if match then
+            anyMatch = true
             -- integrating 1/frequency should be seconds scrubbed
             -- dividing by scrubDuration to get into [0, 1] progress range
             self.progress[transition.to] = (self.progress[transition.to] or 0)
@@ -112,7 +117,11 @@ function DirtFsm:scrub(tool, frequency)
             end
         end
     end
-    return false
+    return anyMatch
+end
+
+function DirtFsm:applyCleaner(cleaner)
+
 end
 
 return DirtFsm
