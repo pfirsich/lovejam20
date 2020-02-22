@@ -1,18 +1,18 @@
 local assets = {}
 
-function assets.image(name)
+function assets.image(name, path)
     return {
         type = "image",
         name = name,
-        path = "assets/images/" .. name .. ".png",
+        path = "assets/images/" .. (path or (name .. ".png")),
     }
 end
 
-function assets.sound(name)
+function assets.sound(name, path)
     return {
         type = "sound",
         name = name,
-        path = "assets/sounds/" .. name .. ".wav",
+        path = "assets/sounds/" .. (path or (name .. ".wav")),
     }
 end
 

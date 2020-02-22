@@ -10,5 +10,5 @@ return {
 
     gaugeWidth = 96,
     gaugeHeight = 16,
-    gaugeOffset = {0, 32},
+    gaugeOffset = {40, -5},
 }

@@ -206,22 +206,19 @@ function scene.draw(dt)
 
         local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
 
-        local gaugeX = mx + const.gaugeOffset[1] - const.gaugeWidth / 2
+        local gaugeX = mx + const.gaugeOffset[1]
         local gaugeY = my + const.gaugeOffset[2]
-        lg.setColor(0, 0, 0)
-        lg.rectangle("fill", gaugeX, gaugeY, const.gaugeWidth, const.gaugeHeight)
         local scrubAmount = util.math.clamp(scrubFreq / 9.0)
-        if scrubAmount < 0.33333 then
-            lg.setColor(0, 1, 0)
+        local gaugeImg = "gaugeFast"
+        if scrubAmount < 0.05 then
+            gaugeImg = "gaugeEmpty"
+        elseif scrubAmount < 0.33333 then
+            gaugeImg = "gaugeSlow"
         elseif scrubAmount < 0.6666 then
-            lg.setColor(1, 1, 0)
-        else
-            lg.setColor(1, 0, 0)
+            gaugeImg = "gaugeMed"
         end
-        lg.rectangle("fill", gaugeX, gaugeY,
-            math.floor(const.gaugeWidth * scrubAmount),
-            math.floor(const.gaugeHeight))
-        lg.rectangle("line", gaugeX, gaugeY, const.gaugeWidth, const.gaugeHeight)
+        lg.setColor(1, 1, 1)
+        lg.draw(assets[gaugeImg], gaugeX, gaugeY)
 
         lg.setColor(1, 1, 1)
         lg.print(("Scrub Frequency: %.1f Hz"):format(scrubFreq), 5, const.resY - 15)
