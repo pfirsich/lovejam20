@@ -1,11 +1,13 @@
 require("globals") -- schmutz!
 require("libs.strict")
+require("libs.slam")
 
 local scenes = require("scenes")
 
 assetList = {
     assets.image("handSponge"),
     assets.image("handCloth"),
+    assets.sound("scrub"),
 }
 
 function love.load(arg)
@@ -31,7 +33,7 @@ end
 
 function love.keypressed(key)
     local ctrl = lk.isDown("lctrl") or lk.isDown("rctrl")
-    if ctrl and key == "r" then 
+    if ctrl and key == "r" then
         const.reload()
         print("Constants reloaded.")
     end
@@ -39,12 +41,12 @@ end
 
 function love.run()
 	love.load(love.arg.parseGameArguments(arg), arg)
- 
+
 	-- We don't want the first frame's dt to include time taken by love.load.
 	lt.step()
- 
+
 	local dt = 0
- 
+
 	return function()
         local scene = scenes.current
         while scene.simTime <= scene.realTime do
@@ -69,18 +71,18 @@ function love.run()
             love.update(const.simDt)
             util.callNonNil(scene.tick)
         end
- 
+
 		dt = lt.step()
- 
+
         scene.realTime = scene.realTime + dt
- 
+
 		if lg and lg.isActive() then
 			lg.origin()
 			lg.clear(lg.getBackgroundColor())
 			love.draw()
 			lg.present()
 		end
- 
+
 		lt.sleep(0.001)
 	end
 end

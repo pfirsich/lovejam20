@@ -45,4 +45,14 @@ function m.lineIntersectRect(lx1, ly1, lx2, ly2, rx, ry, rw, rh)
     return m.intervalsOverlap(tminX, tmaxX, tminY, tmaxY)
 end
 
+function m.randf(min, max)
+    min = min or 0
+    max = max or 1
+    return min + love.math.random() * (max - min)
+end
+
+function m.randDeviate(base, deviation)
+    return m.randf(base - deviation, base + deviation)
+end
+
 return m

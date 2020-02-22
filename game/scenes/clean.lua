@@ -15,6 +15,8 @@ local dirtTiles = {}
 local lastMouseX, lastMouseY = 0, 0
 local mouseVelX, mouseVelY = 0, 0
 
+local mouseHistory = {}
+
 function scene.enter()
     for y = 1, const.dirtTilesY do
         dirtTiles[y] = {}
@@ -26,16 +28,6 @@ function scene.enter()
             }
         end
     end
-end
-
--- returns if mouse changed direction
-local function updateMouseVel(mx, my)
-    local lastVelX, lastVelY = mouseVelX, mouseVelY
-    mouseVelX, mouseVelY = mx - lastMouseX, my - lastMouseY
-    lastMouseX, lastMouseY = mx, my
-
-    -- new velocity at least perpendicular (or opposite)
-    return lastVelX*mouseVelX + lastVelY*mouseVelY < 0
 end
 
 local function getLastDirtTileTouch(x, y, index)
@@ -50,19 +42,58 @@ local function getLastDirtTileTouch(x, y, index)
     return tile.touches[idx]
 end
 
+-- return true if scrub in place
+local function updateMouseHistory(mx, my)
+    table.insert(mouseHistory, {x = mx , y = my})
+    if #mouseHistory > math.floor(const.mouseHistoryLen / const.simDt) then
+        table.remove(mouseHistory, 1)
+    end
+    if #mouseHistory > 3 then
+        local mouseVelHistory = {}
+        for i = 2, #mouseHistory do
+            table.insert(mouseVelHistory, {
+                x = mouseHistory[i].x - mouseHistory[i-1].x,
+                y = mouseHistory[i].y - mouseHistory[i-1].y,
+            })
+        end
+        local lastVel = mouseVelHistory[#mouseVelHistory]
+        local foundAScrub = false
+        for i = 1, #mouseVelHistory - 1 do
+            local dot = mouseVelHistory[i].x * lastVel.x + mouseVelHistory[i].y * lastVel.y
+            if dot < 0.0 then
+                foundAScrub = true
+                break
+            end
+        end
+        if foundAScrub then
+            -- truncate the mouse history and leave the last velocity (last two positions!)
+            mouseHistory = {
+                mouseHistory[#mouseHistory - 1],
+                mouseHistory[#mouseHistory]
+            }
+            return true
+        end
+    end
+    return false
+end
+
 function scene.tick()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
-    local lastMx, lastMy = lastMouseX, lastMouseY
-    local mouseSwitched = updateMouseVel(mx, my)
+    local lastMouse = mouseHistory[#mouseHistory] or {x = mx, y = my}
+    local scrubInPlace = updateMouseHistory(mx, my)
+    if scrubInPlace then
+        assets.scrub:play():setPitch(util.math.randDeviate(1.0, 0.05))
+    end
+
     for y = 1, #dirtTiles do
         for x = 1, #dirtTiles[y] do
             local tile = dirtTiles[y][x]
             local tw, th = const.resX / const.dirtTilesX, const.resY / const.dirtTilesY
             local tx, ty = (x - 1) * tw, (y - 1) * th
             local inRect = util.math.lineIntersectRect(
-                lastMx, lastMy, mx, my,
+                lastMouse.x, lastMouse.y, mx, my,
                 tx, ty, tw, th)
-            local tileTouched = inRect and (not tile.lastMouseInRect or mouseSwitched)
+            local tileTouched = inRect and (not tile.lastMouseInRect or scrubInPlace)
             tile.touches[tile.nextTouchIndex] = tileTouched
             tile.nextTouchIndex = tile.nextTouchIndex + 1
             local maxTouches = const.touchHistoryLen / const.simDt
@@ -84,7 +115,7 @@ end
 
 local function count(list)
     local n = 0
-    for i = 1, #list do 
+    for i = 1, #list do
         n = n + (list[i] and 1 or 0)
     end
     return n
@@ -95,7 +126,7 @@ local function getDirtTileTouchFrequency(x, y)
 end
 
 local function getRecentlyTouched(x, y, pastFrames)
-    for i = 1, pastFrames do 
+    for i = 1, pastFrames do
         if getLastDirtTileTouch(x, y, i) then
             return true
         end
@@ -111,12 +142,22 @@ function scene.draw(dt)
                 local tw, th = const.resX / const.dirtTilesX, const.resY / const.dirtTilesY
                 local tx, ty = (x - 1) * tw, (y - 1) * th
                 lg.setColor(0, 0, 1)
-                if getRecentlyTouched(x, y, math.floor(0.1 * const.touchHistoryLen / const.simDt)) then 
+                if getRecentlyTouched(x, y, math.floor(0.1 * const.touchHistoryLen / const.simDt)) then
                     lg.setColor(1, 0, 0)
                 end
                 lg.rectangle("line", tx, ty, tw, th)
                 lg.print(("%.2f"):format(getDirtTileTouchFrequency(x, y)), tx + 2, ty + 2)
             end
+        end
+
+        lg.setColor(0, 1, 0)
+        local points = {}
+        for _, mousePos in ipairs(mouseHistory) do
+            table.insert(points, mousePos.x)
+            table.insert(points, mousePos.y)
+        end
+        if #points > 2 then
+            lg.line(points)
         end
 
         lg.setColor(1, 1, 1)

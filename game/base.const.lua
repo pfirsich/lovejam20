@@ -8,4 +8,5 @@ return {
     dirtTilesX = 3,
     dirtTilesY = 3,
     touchHistoryLen = 5, -- in seconds
+    mouseHistoryLen = 0.2, -- seconds
 }
