@@ -25,21 +25,33 @@ function m.intervalsOverlap(x1, x2, y1, y2)
     return x1 <= y2 and y1 <= x2
 end
 
+local function lineIntersectAxis(lineStart, lineEnd, rectMin, rectMax)
+    local delta = lineEnd - lineStart
+    if delta == 0 then
+        return lineStart > rectMin and lineStart < rectMax, nil, nil
+    end
+    local t1 = (rectMin - lineStart) / delta
+    local t2 = (rectMax - lineStart) / delta
+    local tMin, tMax = math.min(t1, t2), math.max(t1, t2)
+    if not m.intervalsOverlap(tMin, tMax, 0, 1) then
+        return false, nil, nil
+    end
+    return true, tMin, tMax
+end
+
 function m.lineIntersectRect(lx1, ly1, lx2, ly2, rx, ry, rw, rh)
     -- TODO: handle dx, dy = 0
     local dx, dy = lx2 - lx1, ly2 - ly1
-    local tX1 = (rx - lx1) / dx
-    local tX2 = (rx + rw - lx1) / dx
-    local tminX, tmaxX = math.min(tX1, tX2), math.max(tX1, tX2)
-    if not m.intervalsOverlap(tminX, tmaxX, 0, 1) then
+
+    local canIntersectX, tminX, tmaxX = lineIntersectAxis(lx1, lx2, rx, rx + rw)
+    local canIntersectY, tminY, tmaxY = lineIntersectAxis(ly1, ly2, ry, ry + rh)
+
+    if not canIntersectX or not canIntersectY then
         return false
     end
 
-    local tY1 = (ry - ly1) / dy
-    local tY2 = (ry + rh - ly1) / dy
-    local tminY, tmaxY = math.min(tY1, tY2), math.max(tY1, tY2)
-    if not m.intervalsOverlap(tminY, tmaxY, 0, 1) then
-        return false
+    if tminX == nil or tminY == nil or tminY == nil or tmaxY == nil then
+        return true
     end
 
     return m.intervalsOverlap(tminX, tmaxX, tminY, tmaxY)
