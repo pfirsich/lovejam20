@@ -13,9 +13,9 @@ assetList = {
     assets.image("gaugeMed", "gauge2Med.png"),
     assets.image("gaugeFast", "gauge2Fast.png"),
 
-
     assets.image("goo"),
     assets.image("specks"),
+    assets.image("transitions"),
 
     assets.sound("scrub"),
 }

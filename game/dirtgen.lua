@@ -1,9 +1,11 @@
+local DirtFsm = require("dirtfsm")
+
 local dirtgen = {}
 
-local function generateSimplexLayer(tiles, layer)
-    local baseScale = layer.params.scale or 1.0
-    local octaves = layer.params.octaves or {1.0}
-    local threshold = layer.params.threshold or 0.5
+local function generateSimplexLayer(tiles, layerIdx, layerGenParams)
+    local baseScale = layerGenParams.params.scale or 1.0
+    local octaves = layerGenParams.params.octaves or {1.0}
+    local threshold = layerGenParams.params.threshold or 0.5
     local offX, offY = lm.random(), lm.random()
     for y = 1, #tiles do
         for x = 1, #tiles[y] do
@@ -14,40 +16,39 @@ local function generateSimplexLayer(tiles, layer)
                 scale = scale / 2.0
             end
             if value > threshold then
-                table.insert(tiles[y][x].dirtTypes, layer.dirtType)
+                tiles[y][x].layers[layerIdx] = {
+                    fsm = DirtFsm(layerGenParams.dirtType),
+                }
             end
         end
     end
 end
 
-function dirtgen.generate(layers)
-    local dirtTiles = {}
-    local numTilesX = math.floor(const.resX / const.dirtTileSize)
-    local numTilesY = math.floor(const.resY / const.dirtTileSize)
+function dirtgen.generate(layerData)
+    local dirt = {
+        tiles = {},
+        numTilesX = math.floor(const.resX / const.dirtTileSize),
+        numTilesY = math.floor(const.resY / const.dirtTileSize),
+        layerData = layerData,
+        layerCount = #layerData,
+    }
 
-    for y = 1, numTilesY do
-        dirtTiles[y] = {}
-        for x = 1, numTilesX do
-            dirtTiles[y][x] = {
-                dirtTypes = {},
-                objects = {},
+    for y = 1, dirt.numTilesY do
+        dirt.tiles[y] = {}
+        for x = 1, dirt.numTilesX do
+            dirt.tiles[y][x] = {
+                layers = {},
             }
         end
     end
 
-    for _, layer in ipairs(layers) do
-        if layer.type == "dirt" then
-            if layer.genType == "simplex" then
-                generateSimplexLayer(dirtTiles, layer)
-            end
-        elseif layer.type == "object" then
-            if layer.genType == "uniform" then
-                generateUniformObjects(dirtTiles, layer)
-            end
+    for layerIdx, layerGenParams in ipairs(layerData) do
+        if layerGenParams.genType == "simplex" then
+            generateSimplexLayer(dirt.tiles, layerIdx, layerGenParams)
         end
     end
 
-    return dirtTiles
+    return dirt
 end
 
 return dirtgen

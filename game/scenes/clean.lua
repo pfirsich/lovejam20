@@ -1,5 +1,4 @@
 local dirtgen = require("dirtgen")
-local DirtFsm = require("dirtfsm")
 local FreqMeasure = require("freqmeasure")
 
 local scene = {}
@@ -14,7 +13,7 @@ local tools = {
 }
 local currentTool = "sponge"
 
-local dirtTiles = nil
+local dirt = nil
 
 local lastMouseX, lastMouseY = 0, 0
 local mouseVelX, mouseVelY = 0, 0
@@ -23,27 +22,35 @@ local mouseHistory = {}
 
 local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
 
+local tileMaskShader = lg.newShader([[
+uniform Image mask;
+uniform vec4 maskRegion;
+
+vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
+{
+    vec4 texturecolor = Texel(tex, texture_coords);
+    float maskValue = Texel(mask, maskRegion.xy + texture_coords * maskRegion.zw).r;
+    return texturecolor * color * maskValue;
+}
+]])
+
 function scene.enter()
-    dirtTiles = dirtgen.generate {
-        {type = "dirt", dirtType = "goo", genType = "simplex", params = {
+    dirt = dirtgen.generate {
+        {dirtType = "goo", genType = "simplex", params = {
             scale = 2.0,
             octaves = {1.0, 0.5, 0.3},
             threshold = 0.8,
         }},
-        {type = "dirt", dirtType = "specks", genType = "simplex", params = {
+        {dirtType = "specks", genType = "simplex", params = {
             scale = 3.0,
             octaves = {1.0},
             threshold = 0.8,
         }},
     }
-    for y = 1, #dirtTiles do
-        for x = 1, #dirtTiles[y] do
-            dirtTiles[y][x].scrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
-            dirtTiles[y][x].lastMouseInRect = false
-            if #dirtTiles[y][x].dirtTypes > 0 then
-                dirtTiles[y][x].dirtFsm = DirtFsm(
-                    dirtTiles[y][x].dirtTypes[#dirtTiles[y][x].dirtTypes])
-            end
+    for y = 1, #dirt.tiles do
+        for x = 1, #dirt.tiles[y] do
+            dirt.tiles[y][x].scrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
+            dirt.tiles[y][x].lastMouseInRect = false
         end
     end
 end
@@ -91,6 +98,16 @@ local function count(list)
     return n
 end
 
+local function pickTopLayer(x, y)
+    local tile = dirt.tiles[y][x]
+    for l = dirt.layerCount, 1, -1 do
+        if tile.layers[l] ~= nil then
+            return l, tile.layers[l]
+        end
+    end
+    return nil, nil
+end
+
 local function scrub()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     local lastMouse = mouseHistory[#mouseHistory] or {x = mx, y = my}
@@ -100,28 +117,24 @@ local function scrub()
         totalScrubFreqMeas:event(scene.simTime)
     end
 
-    for y = 1, #dirtTiles do
-        for x = 1, #dirtTiles[y] do
-            local tile = dirtTiles[y][x]
+    for y = 1, #dirt.tiles do
+        for x = 1, #dirt.tiles[y] do
+            local tile = dirt.tiles[y][x]
             local tileSize = const.dirtTileSize
             local tx, ty = (x - 1) * tileSize, (y - 1) * tileSize
             local inRect = util.math.lineIntersectRect(
                 lastMouse.x, lastMouse.y, mx, my,
                 tx, ty, tileSize, tileSize)
             local tileScrubbed = inRect and (not tile.lastMouseInRect or scrubInPlace)
-            if tileScrubbed and tile.dirtFsm then
+            if tileScrubbed then
                 tile.scrubFreqMeas:event(scene.simTime)
 
-                if tile.dirtFsm:scrub(currentTool, tile.scrubFreqMeas:get(scene.simTime)) then
+                local layerIdx, topLayer = pickTopLayer(x, y)
+                if topLayer and topLayer.fsm:scrub(currentTool, tile.scrubFreqMeas:get(scene.simTime)) then
                     -- state changed
-                    if tile.dirtFsm.state == "clean" then
-                        table.remove(tile.dirtTypes)
-                        if #tile.dirtTypes > 0 then
-                            tile.dirtFsm = DirtFsm(tile.dirtTypes[#tile.dirtTypes])
-                        else
-                            -- squeaky clean
-                            tile.dirtFsm = nil
-                        end
+                    if topLayer.fsm.state == "clean" then
+                        -- remove the layer
+                        tile.layers[layerIdx] = nil
                     end
                 end
             end
@@ -135,12 +148,9 @@ function scene.tick()
         scrub()
     end
 
-    for y = 1, #dirtTiles do
-        for x = 1, #dirtTiles[y] do
-            local tile = dirtTiles[y][x]
-            if tile.dirtFsm then
-                tile.dirtFsm:update(const.simDt)
-            end
+    for y = 1, #dirt.tiles do
+        for x = 1, #dirt.tiles[y] do
+            local tile = dirt.tiles[y][x]
             tile.scrubFreqMeas:truncate(scene.simTime)
         end
     end
@@ -156,19 +166,64 @@ function scene.keypressed(key)
     end
 end
 
+
+
+local tileOffsets = {
+    {-1, -1}, {0, -1}, {1, -1},
+    {-1,  0},          {1,  0},
+    {-1,  1}, {0,  1}, {1,  1},
+}
+local function getNeighbourHoodBitmask(x, y, layer)
+    local n = 1
+    local mask = 0
+    for _, offset in ipairs(tileOffsets) do
+        local tx = x + offset[1]
+        local ty = y + offset[2]
+        if dirt.tiles[ty] and dirt.tiles[ty][tx]
+                and dirt.tiles[ty][tx].layers[layer] then
+            mask = mask + n
+        end
+        n = n * 2
+    end
+    return mask
+end
+
 function scene.draw(dt)
     util.gfx.pixelCanvas(const.resX, const.resY, {0.1, 0.1, 0.1}, function(dt)
-        for y = 1, #dirtTiles do
-            for x = 1, #dirtTiles[y] do
-                local tile = dirtTiles[y][x]
+        for y = 1, #dirt.tiles do
+            for x = 1, #dirt.tiles[y] do
+                local tile = dirt.tiles[y][x]
                 local tileSize = const.dirtTileSize
                 local tx, ty = (x - 1) * tileSize, (y - 1) * tileSize
 
-                for _, dirtType in ipairs(tile.dirtTypes) do
-                    lg.setColor(tile.dirtFsm:getColor())
-                    lg.draw(assets[dirtType], tx, ty)
+                lg.setShader(tileMaskShader)
+                for layerIdx = 1, dirt.layerCount do
+                    local dirtType = dirt.layerData[layerIdx].dirtType
+
+                    if tile.layers[layerIdx] then
+                        local bitmask = getNeighbourHoodBitmask(x, y, layerIdx)
+                        local transitionTileX = bitmask % 16
+                        local transitionTileY = math.floor(bitmask / 16)
+                        local uvOffset = {
+                            transitionTileX / 16,
+                            transitionTileY / 16,
+                        }
+                        local uvScale = {
+                            assets[dirtType]:getWidth() / assets.transitions:getWidth(),
+                            assets[dirtType]:getHeight() / assets.transitions:getHeight(),
+                        }
+
+                        tileMaskShader:send("mask", assets.transitions)
+                        tileMaskShader:send("maskRegion", {
+                            uvOffset[1], uvOffset[2],
+                            uvScale[1], uvScale[2]
+                        })
+                        lg.setColor(tile.layers[layerIdx].fsm:getColor())
+                        lg.draw(assets[dirtType], tx, ty)
+                    end
                 end
 
+                lg.setShader()
                 lg.setColor(0, 0, 1)
                 local recentlyScrubbed = #tile.scrubFreqMeas > 0
                     and tile.scrubFreqMeas.samples[1] > scene.simTime - 0.1
@@ -177,11 +232,13 @@ function scene.draw(dt)
                 end
                 lg.rectangle("line", tx, ty, tileSize, tileSize)
                 local text = ("%.2f"):format(tile.scrubFreqMeas:get(scene.simTime))
-                if #tile.dirtTypes > 0 then
+                local layerIdx, topLayer = pickTopLayer(x, y)
+                if topLayer then
+                    local dirtType = dirt.layerData[layerIdx].dirtType
                     text = text .. ("\n%s\n%s\n%s"):format(
-                        tile.dirtTypes[#tile.dirtTypes],
-                        tile.dirtFsm.state,
-                        finspect(tile.dirtFsm.progress))
+                        dirtType,
+                        topLayer.fsm.state,
+                        finspect(topLayer.fsm.progress))
                 end
                 lg.print(text, tx + 2, ty + 2)
             end

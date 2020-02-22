@@ -115,17 +115,4 @@ function DirtFsm:scrub(tool, frequency)
     return false
 end
 
-function DirtFsm:update(dt)
-    if self.timeout then
-        self.timeout = self.timeout - dt
-        if self.timeout <= 0 then
-            local stateIndex = util.table.findKeyValue(
-                self.fsmData.states, "name", self.state)
-            assert(stateIndex > 1)
-            local previousState = self.fsmData.states[stateIndex - 1].name
-            self:enter(previousState)
-        end
-    end
-end
-
 return DirtFsm
