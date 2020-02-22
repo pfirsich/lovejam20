@@ -160,14 +160,14 @@ end
 
 local function applyCleaner(cleaner)
     local images = {assets.bubble1, assets.bubble2}
-    local radius = 150
+    local radius = const.cleanerRadius[cleaner]
     local area = 2 * math.pi * radius * radius
     local num = math.floor(area / 4096) * 2
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     for i = 1, num do
         local x, y = util.math.randCircle(mx, my, radius)
         local particle = particles.spawn("bubbles",
-            util.table.randomChoice(images), x, y, 4.0, false, 1)
+            util.table.randomChoice(images), x, y, const.cleanerLifetime[cleaner], false, 1)
         particle.color = {unpack(const.cleanerColors[cleaner])}
     end
     assets.spray:play():setPitch(util.math.randDeviate(1.0, 0.1))
@@ -195,6 +195,11 @@ function scene.tick()
     for y = 1, #dirt.tiles do
         for x = 1, #dirt.tiles[y] do
             local tile = dirt.tiles[y][x]
+            for layer = 1, dirt.layerCount do
+                if tile.layers[layer] then
+                    tile.layers[layer].fsm:update(const.simDt)
+                end
+            end
             tile.scrubFreqMeas:truncate(scene.simTime)
         end
     end
@@ -316,14 +321,17 @@ function scene.draw(dt)
         particles.draw("bubbles")
 
         lg.setScissor()
-        lg.setColor(0, 1, 0)
-        local points = {}
-        for _, mousePos in ipairs(mouseHistory) do
-            table.insert(points, mousePos.x)
-            table.insert(points, mousePos.y)
-        end
-        if #points > 2 then
-            lg.line(points)
+
+        if showDebug then
+            lg.setColor(0, 1, 0)
+            local points = {}
+            for _, mousePos in ipairs(mouseHistory) do
+                table.insert(points, mousePos.x)
+                table.insert(points, mousePos.y)
+            end
+            if #points > 2 then
+                lg.line(points)
+            end
         end
 
         lg.setColor(1, 1, 1)

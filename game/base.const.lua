@@ -16,5 +16,17 @@ return {
         cleanerA = {0.85, 0.42, 0.85, 1.0},
         cleanerB = {0.61, 0.82, 0.87, 1.0},
         cleanerC = {0.86, 0.86, 0.42, 1.0},
-    }
+    },
+
+    cleanerRadius = {
+        cleanerA = 90,
+        cleanerB = 60,
+        cleanerC = 120,
+    },
+
+    cleanerLifetime = {
+        cleanerA = 4.0,
+        cleanerB = 3.0,
+        cleanerC = 2.0,
+    },
 }

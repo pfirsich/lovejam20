@@ -1,13 +1,13 @@
 local DirtFsm = class("DirtFsm")
 
-local function transition(from, to, tool, speed, duration, modifiers)
+local function transition(from, to, tool, speed, duration, cleaners)
     return {
         from = from,
         to = to,
         tool = tool,
         scrubSpeed = speed,
         scrubDuration = duration,
-        modifiers = modifiers
+        cleaners = cleaners
     }
 end
 
@@ -26,12 +26,8 @@ local dirtFsmData = {
             {name = "clean", color = {1, 1, 1, 0.3}},
         },
         transitions = {
-            transition("init", "softened", "sponge", "brisk", 3.0, {
-                {"cleanerA", 0.2, 1.0} -- cleaner type, min amount, max amount
-            }),
-            transition("softened", "clean", "cloth", "fast", 1.0, {
-                {"cleanerB", 0.5, 1.0},
-            })
+            transition("init", "softened", "sponge", "brisk", 3.0, {"cleanerA"}),
+            transition("softened", "clean", "cloth", "fast", 1.0, {"cleanerC"}),
         }
     },
     specks = {
@@ -40,9 +36,7 @@ local dirtFsmData = {
             {name = "clean", color = {1, 1, 1, 0.7}},
         },
         transitions = {
-            transition("init", "clean", "sponge", "fast", 1.0, {
-                {"cleanerA", 0.2, 1.0},
-            })
+            transition("init", "clean", "sponge", "fast", 1.0, {"cleanerB"}),
         }
     }
 }
@@ -105,6 +99,9 @@ function DirtFsm:scrub(tool, frequency)
         local match = transition.from == self.state
             and transition.tool == tool
             and frequency > freqMin and frequency < freqMax
+        for _, cleaner in ipairs(transition.cleaners) do
+            match = match and (self.cleaners[cleaner] ~= nil)
+        end
         if match then
             anyMatch = true
             -- integrating 1/frequency should be seconds scrubbed
@@ -121,7 +118,19 @@ function DirtFsm:scrub(tool, frequency)
 end
 
 function DirtFsm:applyCleaner(cleaner)
+    self.cleaners[cleaner] = 1.0
+end
 
+function DirtFsm:update(dt)
+    for _, cleaner in ipairs(util.table.keys(self.cleaners)) do
+        local value = self.cleaners[cleaner]
+        value = value - dt / const.cleanerLifetime[cleaner]
+        if value <= 0 then
+            self.cleaners[cleaner] = nil
+        else
+            self.cleaners[cleaner] = value
+        end
+    end
 end
 
 return DirtFsm
