@@ -118,6 +118,7 @@ function DirtFsm:scrub(tool, frequency)
 end
 
 function DirtFsm:applyCleaner(cleaner)
+    self.cleaners = {} -- clear other cleaners
     self.cleaners[cleaner] = 1.0
 end
 

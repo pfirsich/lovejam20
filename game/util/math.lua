@@ -100,4 +100,10 @@ function m.circleInRect(cx, cy, radius, rx, ry, rw, rh)
     return relX*relX + relY*relY < radius*radius
 end
 
+function m.pointInCircle(px, py, cx, cy, radius)
+    local relX = px - cx
+    local relY = py - cy
+    return relX*relX + relY*relY < radius*radius
+end
+
 return m

@@ -29,6 +29,23 @@ function particles.spawn(set, image, x, y, lifetime, rotation, maxScale)
     return particle
 end
 
+function particles.forEach(set, func, reverse)
+    if particles.sets[set] == nil then
+        return
+    end
+    local first, last, step = 1, #particles.sets[set], 1
+    if reverse then
+        first, last, step = #particles.sets[set], 1, -1
+    end
+    for i = first, last, step do
+        local shouldDelete = func(particles.sets[set][i], i)
+        if shouldDelete then
+            assert(reverse)
+            table.remove(particles.sets[set], i)
+        end
+    end
+end
+
 function particles.update(set, dt, updateFunc)
     if particles.sets[set] == nil then
         return

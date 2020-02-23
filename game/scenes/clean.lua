@@ -180,11 +180,19 @@ local function applyCleaner(cleaner)
     local area = 2 * math.pi * radius * radius
     local num = math.floor(area / 4096) * 2
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
+    -- remove all other particles
+    particles.forEach("bubbles", function(particle)
+        if particle.cleanerType ~= cleaner and
+                util.math.pointInCircle(particle.x, particle.y, mx, my, radius) then
+            return true
+        end
+    end, true)
     for i = 1, num do
         local x, y = util.math.randCircle(mx, my, radius)
         local particle = particles.spawn("bubbles",
             util.table.randomChoice(images), x, y, const.cleanerLifetime[cleaner], false, 1)
         particle.color = {unpack(const.cleanerColors[cleaner])}
+        particle.cleanerType = cleaner
     end
     assets.spray:play():setPitch(util.math.randDeviate(1.0, 0.1))
 
