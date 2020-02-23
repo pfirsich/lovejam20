@@ -51,8 +51,8 @@ D to apply Blinge]], 0),
         recipeTitle("Prisparkartarium"),
         recipeDirtImage("goo"),
         text(
-[[1. Soften: Moderate scrub with Slorbex and Glab
-2. Wipe off: Fast scrub with Cloth and Blinge]], 0.5),
+[[1. Soften using brisk scrub with Slorbex and Glab
+2. Wipe off slowly Cloth and Blinge]], 0.5),
     },
     {
         recipeTitle("Flaglonze"),
@@ -181,10 +181,10 @@ end
 
 function codex.draw(y)
     assert(codex.book)
-    local x = const.resX / 2 - pageWidth
-    lg.setColor(0, 0, 0, 1)
-    lg.rectangle("fill", x, y, pageWidth * 2, pageHeight)
     lg.setColor(1, 1, 1, 1)
+    local backX = const.resX / 2 - assets.bookBack:getWidth() / 2
+    lg.draw(assets.bookBack, backX, y - 15) -- yeees, harcoded shit
+    local x = const.resX / 2 - pageWidth
     codex.book:draw(x, y)
 end
 

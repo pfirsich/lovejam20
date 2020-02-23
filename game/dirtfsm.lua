@@ -27,7 +27,7 @@ local dirtFsmData = {
         },
         transitions = {
             transition("init", "softened", "slorbex", "brisk", 3.0, {"cleanerA"}),
-            transition("softened", "clean", "cloth", "fast", 1.0, {"cleanerC"}),
+            transition("softened", "clean", "cloth", "slow", 1.0, {"cleanerC"}),
         }
     },
     specks = {

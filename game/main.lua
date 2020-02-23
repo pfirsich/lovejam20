@@ -42,6 +42,7 @@ assetList = {
 
     assets.font("bookfont", "Alagard.fnt"),
     assets.image("page"),
+    assets.image("bookBack"),
 }
 
 function love.load(arg)
