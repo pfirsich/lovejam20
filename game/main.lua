@@ -10,11 +10,15 @@ assetList = {
     assets.image("handCloth"),
     assets.image("handSlorbex"),
     assets.image("handOktoplox"),
+    assets.image("handOpen"),
+    assets.image("handPoint"),
 
     assets.image("gaugeEmpty", "gauge2Empty.png"),
     assets.image("gaugeSlow", "gauge2Slow.png"),
     assets.image("gaugeMed", "gauge2Med.png"),
     assets.image("gaugeFast", "gauge2Fast.png"),
+
+    assets.image("backgroundMetal"),
 
     assets.image("goo"),
     assets.image("specks"),

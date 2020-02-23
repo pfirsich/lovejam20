@@ -208,7 +208,7 @@ function scene.tick()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     local hoverCodex = my >= codexPosition
 
-    if hoverCodex then
+    if not hoverCodex then
         if love.mouse.isDown(1) then
             scrub()
         end
@@ -317,6 +317,8 @@ end
 
 function scene.draw(dt)
     util.gfx.pixelCanvas(const.resX, const.resY, {0.1, 0.1, 0.1}, function(dt)
+        lg.draw(assets.backgroundMetal)
+
         lg.setScissor(0, 0, #dirt.tiles[1] * const.dirtTileSize, #dirt.tiles * const.dirtTileSize)
         for y = 1, #dirt.tiles do
             for x = 1, #dirt.tiles[y] do
@@ -393,17 +395,20 @@ function scene.draw(dt)
             end
         end
 
+        lg.setColor(1, 1, 1)
         codex.draw(codexPosition)
 
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
         local hoverCodex = my >= codexPosition
 
         lg.setColor(1, 1, 1)
-        local mx, my = util.gfx.getMouse(const.resX, const.resY)
         local tool = tools[currentTool]
-        local image = assets[tool.image]
-        local imgW, imgH = image:getDimensions()
-        lg.draw(image, mx, my, 0, 1, 1, imgW/2, imgH/2)
+        local handImage = assets[tool.image]
+        if hoverCodex then
+            handImage = love.mouse.isDown(1) and assets.handPoint or assets.handOpen
+        end
+        local imgW, imgH = handImage:getDimensions()
+        lg.draw(handImage, mx, my, 0, 1, 1, imgW/2, imgH/2)
 
         lg.setColor(1, 1, 1)
         particles.draw("sparkles")

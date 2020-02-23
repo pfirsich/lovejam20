@@ -30,6 +30,6 @@ return {
         cleanerC = 2.0,
     },
 
-    codexPaddingTop = 50,
+    codexPaddingTop = 30,
     codexMoveSpeed = 1000.0,
 }
