@@ -13,6 +13,9 @@ local tools = {
     },
     slorbex = {
         image = "handSlorbex",
+    },
+    oktoplox = {
+        image = "handOktoplox",
     }
 }
 local currentTool = "sponge"
@@ -235,6 +238,8 @@ function scene.keypressed(key)
         currentTool = "cloth"
     elseif key == "e" then
         currentTool = "slorbex"
+    elseif key == "w" then
+        currentTool = "oktoplox"
     elseif key == "g" then
         applyCleaner("cleanerA")
     elseif key == "f" then
