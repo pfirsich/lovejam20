@@ -40,7 +40,8 @@ assetList = {
     assets.sound("spray"),
     assets.sound("sparkle"),
 
-    assets.font("bookfont", "NiceNightie.fnt"),
+    assets.font("bookfont", "Alagard.fnt"),
+    assets.image("page"),
 }
 
 function love.load(arg)

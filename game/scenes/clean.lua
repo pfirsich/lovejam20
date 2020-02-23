@@ -26,8 +26,7 @@ local showDebug = false
 local codexMaxPos = math.floor(const.resY / const.dirtTileSize) * const.dirtTileSize
 local codexPosition = codexMaxPos
 
--- yes, I am serious
-local cleanerParticles = {}
+local scrubbing = false
 
 local dirt = nil
 
@@ -207,17 +206,16 @@ end
 function scene.tick()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     local hoverCodex = my >= codexPosition
+    local mouseDown = love.mouse.isDown(1)
 
-    if not hoverCodex then
-        if love.mouse.isDown(1) then
-            scrub()
-        end
+    if scrubbing then
+        scrub()
     end
 
     codex.update(const.simDt)
     local codexMove = math.sin(codexPosition / const.resY * math.pi / 2.0)
         * const.codexMoveSpeed * const.simDt
-    if my >= codexPosition then
+    if my >= codexPosition and not scrubbing then
         codexPosition = codexPosition - codexMove
     else
         codexPosition = codexPosition + codexMove
@@ -286,12 +284,20 @@ function scene.mousepressed(x, y, button)
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     if button == 1 then
         if my >= codexPosition then
-            if x < const.resX then
+            if mx < const.resX / 2 then
                 codex.targetPosition = codex.targetPosition - 1
             else
                 codex.targetPosition = codex.targetPosition + 1
             end
+        else
+            scrubbing = true
         end
+    end
+end
+
+function scene.mousereleased(x, y, button)
+    if button == 1 then
+        scrubbing = false
     end
 end
 

@@ -8,26 +8,34 @@ local codex = {}
 local pageWidth = 300
 local pageHeight = 350
 
-local function text(text, x, y, params)
+local function text(text, y, params)
     params = params or {}
     return {
         type = "text",
         text = text,
-        x = x, y = y,
+        y = y,
         scale = params.scale or 1,
         align = params.align or "left",
         valign = params.valign or "top",
-        color = params.color or {1, 1, 1, 1},
+        color = params.color or {0, 0, 0, 1},
     }
+end
+
+local function recipeTitle(str)
+    return text(str, 0, {align = "center"})
 end
 
 local function image(assetName, scale, y)
     return {type = "image", asset = assetName, scale = scale, y = y}
 end
 
+local function recipeDirtImage(asset)
+    return image(asset, 0.4, 0.15)
+end
+
 local pages = {
     {
-        text("Tome of Filth", 0, 0.5, {scale = 2, align = "center", valign = "middle"}),
+        text("Tome of Filth", 0.5, {scale = 2, align = "center", valign = "middle"}),
     },
     {
         text([[T to equip Sponge
@@ -37,37 +45,37 @@ W to equip Oktoplox
 
 G to apply Glab
 F to apply Shlooze
-D to apply Blinge]], 0, 0),
+D to apply Blinge]], 0),
     },
     {
-        text("Prisparkartarium", 0, 0, {align = "center"}),
-        image("goo", 0.4, 0.15),
+        recipeTitle("Prisparkartarium"),
+        recipeDirtImage("goo"),
         text(
-[[* Soften with moderate scrub with Slorbex and Glab
-* Wipe off with fast scrub with Cloth and Blinge]], 0, 0.5),
+[[1. Soften: Moderate scrub with Slorbex and Glab
+2. Wipe off: Fast scrub with Cloth and Blinge]], 0.5),
     },
     {
-        text([[Flaglonze
-
-Fast scrubbing with Sponge and Shlooze]], 0, 0),
+        recipeTitle("Flaglonze"),
+        recipeDirtImage("specks"),
+        text("Fast scrubbing with Sponge and Shlooze", 0.5),
     },
     {
-        text("This is page 5", 0, 0),
+        text("This is page 5", 0),
     },
     {
-        text("This is page 6", 0, 0),
+        text("This is page 6", 0),
     },
     {
-        text("This is page 7", 0, 0),
+        text("This is page 7", 0),
     },
     {
-        text("This is page 8", 0, 0),
+        text("This is page 8", 0),
     },
     {
-        text("This is page 9", 0, 0),
+        text("This is page 9", 0),
     },
     {
-        text("This is page 10", 0, 0),
+        text("This is page 10", 0),
     },
 }
 
@@ -94,35 +102,27 @@ function codex.init()
     print(canvasX, canvasY)
     codex.pageImageCanvas = lg.newCanvas(canvasX, canvasY)
     lg.setCanvas(codex.pageImageCanvas)
-    lg.clear(0, 0, 0, 1)
-    local pageMarginX, pageMarxinY = 10, 10
+    --lg.clear(0.87, 0.75, 0.59, 1)
+    lg.clear(0, 0, 0, 0)
+    local pageMarginX, pageMarginY = 20, 20
     local freePageX = pageWidth - pageMarginX * 2
-    local freePageY = pageHeight - pageMarxinY * 2
+    local freePageY = pageHeight - pageMarginY * 2
     for p, page in ipairs(pages) do
         local pageX = pageWidth * ((p - 1) % pagesX)
         local pageY = pageHeight * math.floor((p - 1) / pagesX)
         table.insert(pageCoords, {pageX, pageY})
+
         lg.setColor(1, 1, 1)
-        lg.rectangle("line", pageX, pageY, pageWidth, pageHeight)
+        if p % 2 == 1 then
+            lg.draw(assets.page, pageX, pageY)
+        end
         for e, element in ipairs(page) do
             if element.type == "text" then
-                local x = element.x
-                if x <= 1.0 then
-                    x = math.floor(x * freePageX)
-                end
-                x = x + pageX + pageMarginX
                 local y = element.y
                 if y <= 1.0 then
                     y = math.floor(y * freePageY)
                 end
-                y = y + pageY + pageMarxinY
-
-                local w = font:getWidth(element.text) * element.scale
-                -- if element.align == "center" then
-                --     x = x - w / 2
-                -- elseif element.align == "right" then
-                --     x = x - w
-                -- end
+                y = y + pageY + pageMarginY
 
                 local h = font:getHeight() * element.scale
                 if element.valign == "middle" then
@@ -182,6 +182,9 @@ end
 function codex.draw(y)
     assert(codex.book)
     local x = const.resX / 2 - pageWidth
+    lg.setColor(0, 0, 0, 1)
+    lg.rectangle("fill", x, y, pageWidth * 2, pageHeight)
+    lg.setColor(1, 1, 1, 1)
     codex.book:draw(x, y)
 end
 
