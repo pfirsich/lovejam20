@@ -29,4 +29,7 @@ return {
         cleanerB = 3.0,
         cleanerC = 2.0,
     },
+
+    codexPaddingTop = 50,
+    codexMoveSpeed = 1000.0,
 }

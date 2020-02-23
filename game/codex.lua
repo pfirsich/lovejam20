@@ -14,7 +14,7 @@ local function text(text, x, y, params)
         type = "text",
         text = text,
         x = x, y = y,
-        size = params.size or 16,
+        scale = params.scale or 1,
         align = params.align or "left",
         valign = params.valign or "top",
         color = params.color or {1, 1, 1, 1},
@@ -23,7 +23,7 @@ end
 
 local pages = {
     {
-        text("TOME OF FILTH", 0.5, 0.5, {size = 35, align = "center", valign = "middle"}),
+        text("Tome of Filth", 0.5, 0.5, {scale = 2, align = "center", valign = "middle"}),
     },
     {
         text("TEST\nTEST\nFOOBAR", 0, 0),
@@ -67,6 +67,8 @@ function codex.init()
     assert(pagesX % 2 == 0 and pagesX * pagesY >= #pages)
 
     local fontBackup = lg.getFont()
+    local font = assets.bookfont
+    lg.setFont(font)
 
     local pageCoords = {}
 
@@ -85,11 +87,6 @@ function codex.init()
         lg.rectangle("line", pageX, pageY, pageWidth, pageHeight)
         for e, element in ipairs(page) do
             if element.type == "text" then
-                if not fontCache[element.size] then
-                    fontCache[element.size] = lg.newFont(element.size)
-                end
-                local font = fontCache[element.size]
-
                 local x = element.x
                 if x <= 1.0 then
                     x = x * math.floor(pageWidth - pageMargin * 2)
@@ -101,21 +98,22 @@ function codex.init()
                 end
                 y = y + pageY + pageMargin
 
+                local w = font:getWidth(element.text) * element.scale
                 if element.align == "center" then
-                    x = x - font:getWidth(element.text) / 2
+                    x = x - w / 2
                 elseif element.align == "right" then
-                    x = x - font:getWidth(element.text)
+                    x = x - w
                 end
 
+                local h = font:getHeight() * element.scale
                 if element.valign == "middle" then
-                    y = y - font:getHeight() / 2
+                    y = y - h / 2
                 elseif element.valign == "bottom" then
-                    y = y - font:getHeight()
+                    y = y - h
                 end
 
                 lg.setColor(element.color)
-                lg.setFont(font)
-                lg.print(element.text, x, y)
+                lg.print(element.text, x, y, 0, math.floor(element.scale))
             end
         end
     end
@@ -139,18 +137,19 @@ function codex.update(dt)
     assert(codex.book)
     local targetPage = 2 * util.math.clamp(codex.targetPosition, 1, #pages / 2)
 
+    local dtFactor = 1
     local pageDiff = targetPage - codex.book.currentPage
     if math.abs(pageDiff) > 0 and not codex.book:isFlipping() then
         local dir = pageDiff < 0 and "right" or "left"
         codex.book:startFlip(dir, 1) -- use 1 for duration, because we adjust with dt
+        dtFactor = math.abs(pageDiff) / 2
     end
-    codex.book:update(dt * math.abs(pageDiff) / 2)
+    codex.book:update(dt * dtFactor)
 end
 
-function codex.draw()
+function codex.draw(y)
     assert(codex.book)
     local x = const.resX / 2 - pageWidth
-    local y = const.resY / 2 - pageHeight / 2
     codex.book:draw(x, y)
 end
 

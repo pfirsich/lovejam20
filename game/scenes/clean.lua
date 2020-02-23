@@ -23,7 +23,8 @@ local currentTool = "sponge"
 
 local showDebug = false
 
-local showCodex = true
+local codexMaxPos = math.floor(const.resY / const.dirtTileSize) * const.dirtTileSize
+local codexPosition = codexMaxPos
 
 -- yes, I am serious
 local cleanerParticles = {}
@@ -204,9 +205,24 @@ local function applyCleaner(cleaner)
 end
 
 function scene.tick()
-    if love.mouse.isDown(1) then
-        scrub()
+    local mx, my = util.gfx.getMouse(const.resX, const.resY)
+    local hoverCodex = my >= codexPosition
+
+    if hoverCodex then
+        if love.mouse.isDown(1) then
+            scrub()
+        end
     end
+
+    codex.update(const.simDt)
+    local codexMove = math.sin(codexPosition / const.resY * math.pi / 2.0)
+        * const.codexMoveSpeed * const.simDt
+    if my >= codexPosition then
+        codexPosition = codexPosition - codexMove
+    else
+        codexPosition = codexPosition + codexMove
+    end
+    codexPosition = util.math.clamp(codexPosition, const.codexPaddingTop, codexMaxPos)
 
     for y = 1, #dirt.tiles do
         for x = 1, #dirt.tiles[y] do
@@ -232,13 +248,12 @@ function scene.tick()
 
     particles.update("sparkles", const.simDt, function(sparkle)
     end)
-
-    if showCodex then
-        codex.update(const.simDt)
-    end
 end
 
 function scene.keypressed(key)
+    local mx, my = util.gfx.getMouse(const.resX, const.resY)
+    local hoverCodex = my >= codexPosition
+
     if key == "t" then
         currentTool = "sponge"
     elseif key == "r" then
@@ -247,31 +262,30 @@ function scene.keypressed(key)
         currentTool = "slorbex"
     elseif key == "w" then
         currentTool = "oktoplox"
-    elseif key == "g" then
-        applyCleaner("cleanerA")
-    elseif key == "f" then
-        applyCleaner("cleanerB")
-    elseif key == "d" then
-        applyCleaner("cleanerC")
     end
 
-    if key == "return" then
-        showDebug = not showDebug
-    end
-
-    if key == "space" then
-        showCodex = not showCodex
-    end
-
-    local n = tonumber(key)
-    if n then
-        codex.targetPosition = n
+    if hoverCodex then
+        if my >= codexPosition then
+            local n = tonumber(key)
+            if n then
+                codex.targetPosition = n
+            end
+        end
+    else
+        if key == "g" then
+            applyCleaner("cleanerA")
+        elseif key == "f" then
+            applyCleaner("cleanerB")
+        elseif key == "d" then
+            applyCleaner("cleanerC")
+        end
     end
 end
 
 function scene.mousepressed(x, y, button)
+    local mx, my = util.gfx.getMouse(const.resX, const.resY)
     if button == 1 then
-        if showCodex then
+        if my >= codexPosition then
             if x < const.resX then
                 codex.targetPosition = codex.targetPosition - 1
             else
@@ -379,6 +393,11 @@ function scene.draw(dt)
             end
         end
 
+        codex.draw(codexPosition)
+
+        local mx, my = util.gfx.getMouse(const.resX, const.resY)
+        local hoverCodex = my >= codexPosition
+
         lg.setColor(1, 1, 1)
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
         local tool = tools[currentTool]
@@ -389,26 +408,21 @@ function scene.draw(dt)
         lg.setColor(1, 1, 1)
         particles.draw("sparkles")
 
-        local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
-        local gaugeX = mx + const.gaugeOffset[1]
-        local gaugeY = my + const.gaugeOffset[2]
-        local scrubAmount = util.math.clamp(scrubFreq / 9.0)
-        local gaugeImg = "gaugeFast"
-        if scrubAmount < 0.05 then
-            gaugeImg = "gaugeEmpty"
-        elseif scrubAmount < 0.33333 then
-            gaugeImg = "gaugeSlow"
-        elseif scrubAmount < 0.6666 then
-            gaugeImg = "gaugeMed"
-        end
-        lg.setColor(1, 1, 1)
-        lg.draw(assets[gaugeImg], gaugeX, gaugeY)
-
-        lg.setColor(1, 1, 1)
-        lg.print(("Scrub Frequency: %.1f Hz"):format(scrubFreq), 5, const.resY - 15)
-
-        if showCodex then
-            codex.draw()
+        if not hoverCodex then
+            local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
+            local gaugeX = mx + const.gaugeOffset[1]
+            local gaugeY = my + const.gaugeOffset[2]
+            local scrubAmount = util.math.clamp(scrubFreq / 9.0)
+            local gaugeImg = "gaugeFast"
+            if scrubAmount < 0.05 then
+                gaugeImg = "gaugeEmpty"
+            elseif scrubAmount < 0.33333 then
+                gaugeImg = "gaugeSlow"
+            elseif scrubAmount < 0.6666 then
+                gaugeImg = "gaugeMed"
+            end
+            lg.setColor(1, 1, 1)
+            lg.draw(assets[gaugeImg], gaugeX, gaugeY)
         end
     end)
 end
