@@ -20,6 +20,12 @@ assetList = {
     assets.image("bubble1"),
     assets.image("bubble2"),
 
+    assets.image("squareBubble1"),
+    assets.image("squareBubble2"),
+
+    assets.image("splat1"),
+    assets.image("splat2"),
+
     assets.image("sparkle1"),
     assets.image("sparkle2"),
 

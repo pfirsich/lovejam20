@@ -56,7 +56,10 @@ function particles.draw(set)
 
     for _, particle in ipairs(particles.sets[set]) do
         lg.setColor(particle.color)
-        lg.draw(particle.image, particle.x, particle.y, particle.angle, particle.scale)
+        local img = particle.image
+        lg.draw(img, particle.x, particle.y,
+            particle.angle, particle.scale, particle.scale,
+            img:getWidth()/2, img:getHeight()/2)
     end
 end
 

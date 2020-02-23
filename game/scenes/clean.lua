@@ -159,7 +159,14 @@ local function scrub()
 end
 
 local function applyCleaner(cleaner)
-    local images = {assets.bubble1, assets.bubble2}
+    local images
+    if cleaner == "cleanerA" then
+        images = {assets.bubble1, assets.bubble2}
+    elseif cleaner == "cleanerB" then
+        images = {assets.squareBubble1, assets.squareBubble2}
+    elseif cleaner == "cleanerC" then
+        images = {assets.splat1, assets.splat2}
+    end
     local radius = const.cleanerRadius[cleaner]
     local area = 2 * math.pi * radius * radius
     local num = math.floor(area / 4096) * 2

@@ -14,8 +14,8 @@ return {
 
     cleanerColors = {
         cleanerA = {0.85, 0.42, 0.85, 1.0},
-        cleanerB = {0.61, 0.82, 0.87, 1.0},
-        cleanerC = {0.86, 0.86, 0.42, 1.0},
+        cleanerB = {0.86, 0.86, 0.42, 1.0},
+        cleanerC = {0.31, 0.51, 0.82, 1.0},
     },
 
     cleanerRadius = {
