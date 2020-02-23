@@ -1,6 +1,7 @@
 local dirtgen = require("dirtgen")
 local FreqMeasure = require("freqmeasure")
 local particles = require("particles")
+local codex = require("codex")
 
 local scene = {}
 
@@ -21,6 +22,8 @@ local tools = {
 local currentTool = "sponge"
 
 local showDebug = false
+
+local showCodex = true
 
 -- yes, I am serious
 local cleanerParticles = {}
@@ -229,6 +232,10 @@ function scene.tick()
 
     particles.update("sparkles", const.simDt, function(sparkle)
     end)
+
+    if showCodex then
+        codex.update(const.simDt)
+    end
 end
 
 function scene.keypressed(key)
@@ -250,6 +257,27 @@ function scene.keypressed(key)
 
     if key == "return" then
         showDebug = not showDebug
+    end
+
+    if key == "space" then
+        showCodex = not showCodex
+    end
+
+    local n = tonumber(key)
+    if n then
+        codex.targetPosition = n
+    end
+end
+
+function scene.mousepressed(x, y, button)
+    if button == 1 then
+        if showCodex then
+            if x < const.resX then
+                codex.targetPosition = codex.targetPosition - 1
+            else
+                codex.targetPosition = codex.targetPosition + 1
+            end
+        end
     end
 end
 
@@ -378,6 +406,10 @@ function scene.draw(dt)
 
         lg.setColor(1, 1, 1)
         lg.print(("Scrub Frequency: %.1f Hz"):format(scrubFreq), 5, const.resY - 15)
+
+        if showCodex then
+            codex.draw()
+        end
     end)
 end
 

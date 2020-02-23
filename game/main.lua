@@ -3,6 +3,7 @@ require("libs.strict")
 require("libs.slam")
 
 local scenes = require("scenes")
+local codex = require("codex")
 
 assetList = {
     assets.image("handSponge"),
@@ -39,6 +40,7 @@ assetList = {
 function love.load(arg)
     const.reload()
     assets.load(assetList)
+    codex.init()
 
     scenes.require()
     for name, scene in pairs(scenes) do
