@@ -26,7 +26,7 @@ local dirtFsmData = {
             {name = "clean", color = {1, 1, 1, 0.3}},
         },
         transitions = {
-            transition("init", "softened", "sponge", "brisk", 3.0, {"cleanerA"}),
+            transition("init", "softened", "slorbex", "brisk", 3.0, {"cleanerA"}),
             transition("softened", "clean", "cloth", "fast", 1.0, {"cleanerC"}),
         }
     },

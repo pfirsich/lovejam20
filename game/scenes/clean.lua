@@ -10,6 +10,9 @@ local tools = {
     },
     cloth = {
         image = "handCloth",
+    },
+    slorbex = {
+        image = "handSlorbex",
     }
 }
 local currentTool = "sponge"
@@ -226,10 +229,12 @@ function scene.tick()
 end
 
 function scene.keypressed(key)
-    if key == "r" then
+    if key == "t" then
         currentTool = "sponge"
-    elseif key == "e" then
+    elseif key == "r" then
         currentTool = "cloth"
+    elseif key == "e" then
+        currentTool = "slorbex"
     elseif key == "g" then
         applyCleaner("cleanerA")
     elseif key == "f" then

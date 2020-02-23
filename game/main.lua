@@ -7,6 +7,7 @@ local scenes = require("scenes")
 assetList = {
     assets.image("handSponge"),
     assets.image("handCloth"),
+    assets.image("handSlorbex"),
 
     assets.image("gaugeEmpty", "gauge2Empty.png"),
     assets.image("gaugeSlow", "gauge2Slow.png"),
