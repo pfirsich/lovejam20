@@ -20,6 +20,7 @@ function love.load(arg)
         scene.frameCounter = 0
         util.callNonNil(scene.load)
     end
+
     scenes.enter(scenes.storysequence, "intro", scenes.questview)
 end
 

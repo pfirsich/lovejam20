@@ -21,6 +21,9 @@ return {
     assets.image("lsorble"),
     assets.image("lsorbleSoft1"),
     assets.image("lsorbleSoft2"),
+    assets.image("flaglonz"),
+    assets.image("flaglonzSoft1"),
+    assets.image("flaglonzSoft2"),
 
     assets.image("bubble1"),
     assets.image("bubble2"),
@@ -52,4 +55,9 @@ return {
     assets.sound("voiceDone", "cringomat.ogg"),
 
     assets.sound("voiceGuyGlorzak", "guy/glorzak.wav"),
+    assets.sound("voiceGuyFleeb", "guy/fleeb.wav"),
+    assets.sound("voiceGuyLsorble", "guy/lsorble.wav"),
+    assets.sound("voiceGuyZiltoid", "guy/ziltoid.wav"),
+    assets.sound("voiceGuyFlaglonz", "guy/flaglonz.wav"),
+    assets.sound("voiceGuyWalls", "guy/walls.wav"),
 }

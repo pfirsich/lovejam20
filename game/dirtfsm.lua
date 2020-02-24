@@ -20,31 +20,87 @@ local scrubSpeeds = {
 
 local dirtFsmData = {
     glorzak = {
+        -- slorbex + glab, cloth + blinge
         states = {
             {name = "init"},
-            {name = "softened", color = {1, 0, 1, 0.8}},
-            {name = "clean", color = {1, 1, 1, 0.3}},
+            {name = "softened"},
+            {name = "clean"},
         },
         transitions = {
-            transition("init", "softened", "slorbex", "brisk", 3.0, {"cleanerA"}),
-            transition("softened", "clean", "cloth", "slow", 1.0, {"cleanerC"}),
+            transition("init", "softened", "slorbex", "brisk", 2.0, {"glab"}),
+            transition("softened", "clean", "cloth", "slow", 1.0, {"blinge"}),
         },
         images = {
             init = "glorzak",
             softened = "glorzakSoft",
         },
     },
-    ziltoid = {
+    fleeb = {
+        -- sponge + shlooze
         states = {
             {name = "init"},
-            {name = "clean", color = {1, 1, 1, 0.7}},
+            {name = "clean"},
         },
         transitions = {
-            transition("init", "clean", "sponge", "fast", 1.0, {"cleanerB"}),
+            transition("init", "clean", "sponge", "fast", 1.0, {"shlooze"}),
+        },
+        images = {
+            init = "fleeb",
+        }
+    },
+    lsorble = {
+        -- oktoplox + shlooze, slorbex + glab, cloth + glab
+        states = {
+            {name = "init"},
+            {name = "softened"},
+            {name = "softened2"},
+            {name = "clean"},
+        },
+        transitions = {
+            transition("init", "softened", "oktoplox", "slow", 2.0, {"shlooze"}),
+            transition("softened", "softened2", "slorbex", "slow", 1.0, {"glab"}),
+            transition("softened2", "clean", "cloth", "fast", 2.0, {"glab"}),
+        },
+        images = {
+            init = "lsorble",
+            softened = "lsorbleSoft",
+            softened2 = "lsorbleSoft2",
+        },
+    },
+    ziltoid = {
+        -- oktoplox + glab, oktoplox + blinge
+        states = {
+            {name = "init"},
+            {name = "softened"},
+            {name = "clean"},
+        },
+        transitions = {
+            transition("init", "softened", "oktoplox", "fast", 2.0, {"glab"}),
+            transition("softened", "clean", "oktoplox", "brisk", 2.0, {"blinge"}),
         },
         images = {
             init = "ziltoid",
-        }
+            softened = "ziltoidSoft",
+        },
+    },
+    flaglonz = {
+        -- sponge + shlooze, cloth + shlooze, sponge + blinge
+        states = {
+            {name = "init"},
+            {name = "softened"},
+            {name = "softened2"},
+            {name = "clean"},
+        },
+        transitions = {
+            transition("init", "softened", "sponge", "fast", 3.0, {"shlooze"}),
+            transition("softened", "softened2", "cloth", "fast", 1.0, {"shlooze"}),
+            transition("softened2", "clean", "sponge", "fast", 1.0, {"blinge"}),
+        },
+        images = {
+            init = "lsorble",
+            softened = "lsorbleSoft",
+            softened2 = "lsorbleSoft2",
+        },
     }
 }
 

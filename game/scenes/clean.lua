@@ -34,19 +34,8 @@ local mouseHistory = {}
 
 local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
 
-function scene.enter()
-    dirt = dirtgen.generate {
-        {dirtType = "glorzak", genType = "simplex", params = {
-            scale = 2.0,
-            octaves = {1.0, 0.5, 0.3},
-            threshold = 0.8,
-        }},
-        {dirtType = "ziltoid", genType = "simplex", params = {
-            scale = 3.0,
-            octaves = {1.0},
-            threshold = 0.8,
-        }},
-    }
+function scene.enter(dirtGenParams)
+    dirt = dirtgen.generate(dirtGenParams)
     for y = 1, #dirt.tiles do
         for x = 1, #dirt.tiles[y] do
             dirt.tiles[y][x].scrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
@@ -157,11 +146,11 @@ end
 
 local function applyCleaner(cleaner)
     local images
-    if cleaner == "cleanerA" then
+    if cleaner == "glab" then
         images = {assets.bubble1, assets.bubble2}
-    elseif cleaner == "cleanerB" then
+    elseif cleaner == "shlooze" then
         images = {assets.squareBubble1, assets.squareBubble2}
-    elseif cleaner == "cleanerC" then
+    elseif cleaner == "blinge" then
         images = {assets.splat1, assets.splat2}
     end
     local radius = const.cleanerRadius[cleaner]
@@ -262,11 +251,11 @@ function scene.keypressed(key)
 
     if not codex.hovered then
         if key == "g" then
-            applyCleaner("cleanerA")
+            applyCleaner("glab")
         elseif key == "f" then
-            applyCleaner("cleanerB")
+            applyCleaner("shlooze")
         elseif key == "d" then
-            applyCleaner("cleanerC")
+            applyCleaner("blinge")
         end
     end
 

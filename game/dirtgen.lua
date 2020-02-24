@@ -43,8 +43,18 @@ function dirtgen.generate(layerData)
     end
 
     for layerIdx, layerGenParams in ipairs(layerData) do
-        if layerGenParams.genType == "simplex" then
-            generateSimplexLayer(dirt.tiles, layerIdx, layerGenParams)
+        -- last min hax
+        local lgParams = {
+            dirtType = layerGenParams[1],
+            genType = "simplex",
+            params = {
+                scale = layerGenParams[2],
+                octaves = layerGenParams[3],
+                threshold = layerGenParams[4] or 0.5,
+            },
+        }
+        if lgParams.genType == "simplex" then
+            generateSimplexLayer(dirt.tiles, layerIdx, lgParams)
         end
     end
 

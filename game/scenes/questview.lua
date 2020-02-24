@@ -7,39 +7,82 @@ local scene = {}
 
 quests = {
     {
-        id = "first",
+        id = "tutorial",
         title = "Poop in the Sink",
         description = {
             {"Hey Chief!", 0.6, 0.4},
-            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"We've got a situation in the Medical Sector.", 1.8, 0.2},
             {"A Glorzak has pooped in the sink!", 2.0},
         },
-        dirtTypes = {"Glorzak", "Glargle", "Glob"},
-        read = false,
+        audio = assets.voiceGuyGlorzak,
+        dirtTypes = {"Glorzak"},
+        genParams = {
+            {"glorzak", 2.0, {1.0, 0.5, 0.3}, 0.8},
+        },
+    },
+    {
+        title = "Unsanitary Conditions",
+        description = {
+            {"Hello Chief!", 0.9, 0.5},
+            {"Someone found Fleeb poop in the Kitchen!", 3.0},
+        },
+        audio = assets.voiceGuyFleeb,
+        dirtTypes = {"Fleeb", "Glorzak"},
+        requires = {"tutorial"},
+        genParams = {
+            {"glorzak", 2.0, {1.0, 0.5, 0.3}, 0.8},
+            {"fleeb", 3.0, {1.0}, 0.8},
+        },
     },
     {
         id = "archives",
         title = "A Total Mess",
         description = {
-            {"Hey Chief!", 0.6, 0.4},
-            {"We have a situation in the Medical Sector.", 1.8, 0.2},
-            {"A Glargle has pooped in the sink!", 2.0},
+            {"Hi Chief!", 0.7, 0.4},
+            {"We got another one in the Cargo Bay!", 1.5, 0.3},
+            {"There's Lsorble poop everywhere!", 2.0},
         },
-        dirtTypes = {"Glorzak", "Fleeb", "Glob"},
-        read = false,
-        requires = {"first"},
+        audio = assets.voiceGuyLsorble,
+        dirtTypes = {"Fleeb", "Glorzag", "Lsorble"},
+        requires = {"tutorial"},
         storySequence = "archives",
     },
     {
-        title = "Sheesh!",
+        id = "miniboss",
+        title = "New Frontiers",
         description = {
-            {"Hey Chief!", 0.6, 0.4},
-            {"We have a situation in the Medical Sector.", 1.8, 0.2},
-            {"A Fleeb has pooped in the sink!", 2.0},
+            {"Sir!", 0.5, 0.3},
+            {"Hold tight! Something big's coming!", 1.9, 0.55},
+            {"Ziltoid and Flaglonz poop all over the Bridge!", 2.8, 0.4},
+            {"I don't know if you can handle this one yet!", 1.6},
         },
-        dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
-        read = false,
-        requires = {"first"},
+        audio = assets.voiceGuyZiltoid,
+        dirtTypes = {"Flaglonz", "Ziltoid"},
+        requires = {"tutorial"},
+    },
+    {
+        title = "More Poop",
+        description = {
+            {"Hey, Chief!", 1.0, 0.6},
+            {"They just keep it coming today!", 1.4, 0.55},
+            {"Flaglonz poop in Life Support!", 2.2},
+        },
+        audio = assets.voiceGuyFlaglonz,
+        dirtTypes = {"Flaglonz", "Fleeb"},
+        requires = {"miniboss"},
+    },
+    {
+        title = "God Help Us All",
+        description = {
+            {"Chief!", 0.8, 0.45},
+            {"I've never seen anything like this!", 1.4, 0.5},
+            {"There's poop everywhere!", 1.4, 0.4},
+            {"It's in the walls!", 1.0, 0.5},
+            {"I hope this day ends soon!", 1.5},
+        },
+        audio = assets.voiceGuyWalls,
+        dirtTypes = {"Flaglonz", "Lsorble", "Ziltoid"},
+        requires = {"miniboss"},
     },
 }
 scene.selectedQuest = nil
@@ -49,6 +92,7 @@ local headsetGuySound = nil
 
 local numVisits = 0
 local codexEnabled = false
+local showAllQuests = false
 
 local overviewWidth = 200
 local padding = 15
@@ -184,6 +228,9 @@ local function isQuestUnlocked(idx)
 end
 
 local function isQuestVisible(idx)
+    if showAllQuests then
+        return true
+    end
     return not quests[idx].done and isQuestUnlocked(idx)
 end
 
@@ -211,7 +258,7 @@ function scene.mousepressed(x, y, button)
                         -- efficiency first! :>
                         detailDialogBox:finish()
                     else
-                        headsetGuySound = assets.voiceGuyGlorzak:play()
+                        headsetGuySound = quest.audio:play()
                         quest.read = true
                     end
                     break
@@ -221,13 +268,14 @@ function scene.mousepressed(x, y, button)
         end
 
         if scene.selectedQuest and detailDialogBox:isFinished() then
+            local quest = quests[scene.selectedQuest]
             local x, y, w, h = getStartButtonRect()
             if util.math.pointInRect(mx, my, x, y, w, h) then
                 if headsetGuySound then
                     headsetGuySound:stop()
                     headsetGuySound = nil
                 end
-                scenes.enter(scenes.transition, scenes.clean)
+                scenes.enter(scenes.transition, scenes.clean, quest.genParams or quests[1].genParams)
             end
         end
 
@@ -243,6 +291,10 @@ end
 function scene.keypressed(key)
     if codexEnabled then
         codex.keypressed(key)
+    end
+
+    if DEVMODE and key == "i" then
+        showAllQuests = not showAllQuests
     end
 end
 

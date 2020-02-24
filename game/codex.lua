@@ -53,21 +53,36 @@ D to apply Blinge]], 0),
 2. Wipe off slowly Cloth and Blinge]], 0.5),
     },
     {
-        recipeTitle("Ziltoid Poop"),
-        recipeDirtImage("ziltoid"),
+        recipeTitle("Fleeb Poop"),
+        recipeDirtImage("fleeb"),
         text("Fast scrubbing with Sponge and Shlooze", 0.5),
     },
     {
         text("Lsorble Poop", 0),
         recipeDirtImage("lsorble"),
-        text("I don't know", 0.5),
+        text(
+[[1. Work in Shlooze with Oktoplox slowly
+2. Massage slowly with Slorbex and Glab
+3. Scrub off quickly with Cloth and Glab]], 0.5),
+    },
+    {
+        text("Ziltoid Poop", 0),
+        recipeDirtImage("ziltoid"),
+        text(
+[[1. Rub in Glab using Oktoplox very quickly
+2. Remove using Blinge and Oktoplox with brisk scrubs]], 0.5),
         requiresQuest = "archives",
     },
     {
-        text("Fleeb Poop", 0),
-        recipeDirtImage("fleeb"),
-        text("I don't know", 0.5),
+        text("Flaglonz Poop", 0),
+        recipeDirtImage("flaglonz"),
+        text(
+[[1. Quickly scrub with Sponge and Shlooze
+2. Rub in Shlooze quickly with Cloth
+3. Wipe of quickly with Sponge and Blinge]], 0.5),
         requiresQuest = "archives",
+    },
+    {
     },
 }
 

@@ -13,21 +13,21 @@ return {
     gaugeOffset = {40, -5},
 
     cleanerColors = {
-        cleanerA = {0.85, 0.42, 0.85, 1.0},
-        cleanerB = {0.86, 0.86, 0.42, 1.0},
-        cleanerC = {0.31, 0.51, 0.82, 1.0},
+        glab = {0.85, 0.42, 0.85, 1.0},
+        shlooze = {0.86, 0.86, 0.42, 1.0},
+        blinge = {0.31, 0.51, 0.82, 1.0},
     },
 
     cleanerRadius = {
-        cleanerA = 90,
-        cleanerB = 60,
-        cleanerC = 120,
+        glab = 90,
+        shlooze = 60,
+        blinge = 120,
     },
 
     cleanerLifetime = {
-        cleanerA = 4.0,
-        cleanerB = 3.0,
-        cleanerC = 2.0,
+        glab = 4.0,
+        shlooze = 3.0,
+        blinge = 2.0,
     },
 
     codexPaddingTop = 30,
