@@ -12,7 +12,6 @@ function love.load(arg)
     const.reload()
     assets.load(assetList)
     blobtiles.init(const.dirtTileSize)
-    codex.init()
 
     scenes.require()
     for name, scene in pairs(scenes) do

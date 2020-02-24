@@ -18,6 +18,7 @@ quests = {
         read = false,
     },
     {
+        id = "archives",
         title = "A Total Mess",
         description = {
             {"Hey Chief!", 0.6, 0.4},
@@ -27,6 +28,7 @@ quests = {
         dirtTypes = {"Glorzak", "Fleeb", "Glob"},
         read = false,
         requires = {"first"},
+        storySequence = "archives",
     },
     {
         title = "Sheesh!",
@@ -76,7 +78,11 @@ local startHeight = 40
 
 function scene.enter(finished)
     if scene.selectedQuest and finished then
-        quests[scene.selectedQuest].done = true
+        local quest = quests[scene.selectedQuest]
+        quest.done = true
+        if quest.storySequence then
+            scenes.enter(scenes.storysequence, quest.storySequence, scenes.questview)
+        end
     end
 
     local allDone = true
@@ -108,6 +114,16 @@ function scene.tick()
     if codexEnabled then
         codex.update(const.simDt)
     end
+end
+
+function scene.getDoneQuestIds()
+    local done = {}
+    for _, quest in ipairs(quests) do
+        if quest.done and quest.id then
+            table.insert(done, quest.id)
+        end
+    end
+    return done
 end
 
 local function getOverviewRect()

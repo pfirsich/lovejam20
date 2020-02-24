@@ -53,6 +53,7 @@ function scene.enter()
             dirt.tiles[y][x].lastMouseInRect = false
         end
     end
+    codex.init()
 end
 
 -- return true if scrub in place

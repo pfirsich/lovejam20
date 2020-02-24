@@ -1,5 +1,6 @@
 local Book = require("libs.book")
 local blobtiles = require("blobtiles")
+local scenes = require("scenes")
 
 local codex = {}
 
@@ -57,28 +58,74 @@ D to apply Blinge]], 0),
         text("Fast scrubbing with Sponge and Shlooze", 0.5),
     },
     {
-        text("Empty", 0),
+        text("Lsorble", 0),
+        recipeDirtImage("lsorble"),
+        text("I don't know", 0.5),
+        requiresQuest = "archives",
     },
     {
-        text("Empty", 0),
-    },
-    {
-        text("Empty", 0),
-    },
-    {
-        text("Empty", 0),
-    },
-    {
-        text("Empty", 0),
-    },
-    {
-        text("Empty0", 0),
+        text("Fleeb", 0),
+        recipeDirtImage("fleeb"),
+        text("I don't know", 0.5),
+        requiresQuest = "archives",
     },
 }
 
 codex.targetPosition = 1
 codex.book = nil
 codex.position = 0
+
+local function renderPage(index, page, pagesX, pagesY, pageCoords)
+    local font = assets.bookfont
+    local pageMarginX, pageMarginY = 20, 20
+    local freePageX = pageWidth - pageMarginX * 2
+    local freePageY = pageHeight - pageMarginY * 2
+
+    local pageX = pageWidth * ((index - 1) % pagesX)
+    local pageY = pageHeight * math.floor((index - 1) / pagesX)
+    table.insert(pageCoords, {pageX, pageY})
+
+    lg.setColor(1, 1, 1)
+    if index % 2 == 1 then
+        lg.draw(assets.page, pageX, pageY)
+    end
+    for e, element in ipairs(page) do
+        if element.type == "text" then
+            local y = element.y
+            if y <= 1.0 then
+                y = math.floor(y * freePageY)
+            end
+            y = y + pageY + pageMarginY
+
+            local h = font:getHeight() * element.scale
+            if element.valign == "middle" then
+                y = y - h / 2
+            elseif element.valign == "bottom" then
+                y = y - h
+            end
+
+            lg.setColor(element.color)
+            local scale = math.floor(element.scale)
+            lg.printf(element.text, pageX + pageMarginX, y, freePageX / scale,
+                element.align, 0, scale)
+        elseif element.type == "image" then
+            local image = assets[element.asset]
+            local scale = freePageX / image:getWidth() * element.scale
+            local x = pageX + pageWidth / 2 - image:getWidth() / 2 * scale
+            local y = pageY + math.floor(element.y * freePageY)
+            lg.setColor(1, 1, 1)
+            lg.draw(image, x, y, 0, scale)
+        elseif element.type == "dirttile" then
+            -- copy paste, gotta get done here
+            local image = assets[element.asset]
+            local scale = freePageX / const.dirtTileSize * element.scale
+            local x = pageX + pageWidth / 2 - const.dirtTileSize / 2 * scale
+            local y = pageY + math.floor(element.y * freePageY)
+            lg.setColor(1, 1, 1)
+            lg.draw(image, blobtiles.getQuad(0), x, y, 0, scale)
+        end
+    end
+end
 
 function codex.init()
     local fontCache = {}
@@ -101,54 +148,17 @@ function codex.init()
     lg.setCanvas(codex.pageImageCanvas)
     --lg.clear(0.87, 0.75, 0.59, 1)
     lg.clear(0, 0, 0, 0)
-    local pageMarginX, pageMarginY = 20, 20
-    local freePageX = pageWidth - pageMarginX * 2
-    local freePageY = pageHeight - pageMarginY * 2
+    local doneQuests = scenes.questview.getDoneQuestIds()
     for p, page in ipairs(pages) do
-        local pageX = pageWidth * ((p - 1) % pagesX)
-        local pageY = pageHeight * math.floor((p - 1) / pagesX)
-        table.insert(pageCoords, {pageX, pageY})
-
-        lg.setColor(1, 1, 1)
-        if p % 2 == 1 then
-            lg.draw(assets.page, pageX, pageY)
-        end
-        for e, element in ipairs(page) do
-            if element.type == "text" then
-                local y = element.y
-                if y <= 1.0 then
-                    y = math.floor(y * freePageY)
-                end
-                y = y + pageY + pageMarginY
-
-                local h = font:getHeight() * element.scale
-                if element.valign == "middle" then
-                    y = y - h / 2
-                elseif element.valign == "bottom" then
-                    y = y - h
-                end
-
-                lg.setColor(element.color)
-                local scale = math.floor(element.scale)
-                lg.printf(element.text, pageX + pageMarginX, y, freePageX / scale,
-                    element.align, 0, scale)
-            elseif element.type == "image" then
-                local image = assets[element.asset]
-                local scale = freePageX / image:getWidth() * element.scale
-                local x = pageX + pageWidth / 2 - image:getWidth() / 2 * scale
-                local y = pageY + math.floor(element.y * freePageY)
-                lg.setColor(1, 1, 1)
-                lg.draw(image, x, y, 0, scale)
-            elseif element.type == "dirttile" then
-                -- copy paste, gotta get done here
-                local image = assets[element.asset]
-                local scale = freePageX / const.dirtTileSize * element.scale
-                local x = pageX + pageWidth / 2 - const.dirtTileSize / 2 * scale
-                local y = pageY + math.floor(element.y * freePageY)
-                lg.setColor(1, 1, 1)
-                lg.draw(image, blobtiles.getQuad(0), x, y, 0, scale)
+        local pageEmpty = false
+        if page.requiresQuest then
+            if not util.table.inList(doneQuests, page.requiresQuest) then
+                pageEmpty = true
             end
         end
+
+        renderPage(p, pageEmpty and {recipeTitle("Empty")} or page,
+            pagesX, pagesY, pageCoords)
     end
     lg.setCanvas()
     lg.setFont(fontBackup)
@@ -164,8 +174,7 @@ function codex.init()
         tween = function (x) return math.sin(math.pi * .5 * x) end,
         onFlip = function (self) end,
     }
-    codex.book.currentPage = 2
-    codex.targetPosition = 1
+    codex.book.currentPage = 2 * util.math.clamp(codex.targetPosition, 1, #pages / 2)
 
     codex.position = maxPos
 end

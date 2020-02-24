@@ -17,7 +17,16 @@ sequences = {
             {"For now though, I simply have have to do my job.", 2.5},
         },
         audio = assets.voiceIntro,
-        buttonText = "Do your job",
+        buttonText = "Do Your Job",
+    },
+    archives = {
+        dialog = {
+            {"The elders are impressed by my work and have decided to grant me access to the archives.", 4.0},
+            {"It is said that secrets are hidden in this sacred place which would grant the power to clean the electrons off atoms and the stars off the firmament.", 5.0},
+            {"The ultimate power to dissolve any stain and to clean order itself off the universe with only entropy left behind.", 4.5},
+        },
+        audio = nil,
+        buttonText = "Acquire Ancient Wisdoms",
     },
     done = {
         dialog = {

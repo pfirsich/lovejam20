@@ -13,9 +13,14 @@ return {
 
     assets.image("backgroundMetal"),
 
+    assets.image("fleeb"),
     assets.image("glorzak"),
     assets.image("glorzakSoft"),
     assets.image("ziltoid"),
+    assets.image("ziltoidSoft"),
+    assets.image("lsorble"),
+    assets.image("lsorbleSoft1"),
+    assets.image("lsorbleSoft2"),
 
     assets.image("bubble1"),
     assets.image("bubble2"),
