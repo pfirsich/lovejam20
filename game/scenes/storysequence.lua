@@ -51,8 +51,10 @@ function scene.mousepressed(x, y, button)
         if dialogBox:isFinished() then
             local x, y, w, h = getButtonRect()
             if util.math.pointInRect(mx, my, x, y, w, h) then
-                audio:stop()
-                audio = nil
+                if audio then
+                    audio:stop()
+                    audio = nil
+                end
                 scenes.enter(nextScene, unpack(nextSceneParams))
             end
         else

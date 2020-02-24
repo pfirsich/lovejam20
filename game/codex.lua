@@ -165,6 +165,7 @@ function codex.init()
         onFlip = function (self) end,
     }
     codex.book.currentPage = 2
+    codex.targetPosition = 1
 
     codex.position = maxPos
 end

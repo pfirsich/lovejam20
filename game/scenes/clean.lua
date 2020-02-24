@@ -310,11 +310,13 @@ local tileOffsets = {
 local function getNeighbourHoodBitmask(x, y, layer)
     local n = 1
     local mask = 0
+    local state = dirt.tiles[y][x].layers[layer].fsm.state
     for _, offset in ipairs(tileOffsets) do
         local tx = x + offset[1]
         local ty = y + offset[2]
-        if dirt.tiles[ty] and dirt.tiles[ty][tx]
-                and dirt.tiles[ty][tx].layers[layer] then
+        local layer = dirt.tiles[ty] and dirt.tiles[ty][tx]
+            and dirt.tiles[ty][tx].layers[layer]
+        if layer and layer.fsm.state == state then
             mask = mask + n
         end
         n = n * 2
