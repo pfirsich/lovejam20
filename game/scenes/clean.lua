@@ -2,6 +2,7 @@ local dirtgen = require("dirtgen")
 local FreqMeasure = require("freqmeasure")
 local particles = require("particles")
 local codex = require("codex")
+local blobtiles = require("blobtiles")
 
 local scene = {}
 
@@ -34,18 +35,6 @@ local lastMouseX, lastMouseY = 0, 0
 local mouseHistory = {}
 
 local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleNum)
-
-local tileMaskShader = lg.newShader([[
-uniform Image mask;
-uniform vec4 maskRegion;
-
-vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
-{
-    vec4 texturecolor = Texel(tex, texture_coords);
-    float maskValue = Texel(mask, maskRegion.xy + texture_coords * maskRegion.zw).r;
-    return texturecolor * color * maskValue;
-}
-]])
 
 function scene.enter()
     dirt = dirtgen.generate {
@@ -309,6 +298,7 @@ function scene.mousereleased(x, y, button)
     end
 end
 
+-- This should be somewhere in blobtiles maybe, but this is a fucking gamejam
 local tileOffsets = {
     {-1, -1}, {0, -1}, {1, -1},
     {-1,  0},          {1,  0},
@@ -340,35 +330,17 @@ function scene.draw(dt)
                 local tileSize = const.dirtTileSize
                 local tx, ty = (x - 1) * tileSize, (y - 1) * tileSize
 
-                lg.setShader(tileMaskShader)
                 for layerIdx = 1, dirt.layerCount do
                     local dirtType = dirt.layerData[layerIdx].dirtType
 
                     if tile.layers[layerIdx] then
                         local bitmask = getNeighbourHoodBitmask(x, y, layerIdx)
-                        local transitionTileX = bitmask % 16
-                        local transitionTileY = math.floor(bitmask / 16)
-                        local uvOffset = {
-                            transitionTileX / 16,
-                            transitionTileY / 16,
-                        }
-                        local uvScale = {
-                            assets[dirtType]:getWidth() / assets.transitions:getWidth(),
-                            assets[dirtType]:getHeight() / assets.transitions:getHeight(),
-                        }
-
-                        tileMaskShader:send("mask", assets.transitions)
-                        tileMaskShader:send("maskRegion", {
-                            uvOffset[1], uvOffset[2],
-                            uvScale[1], uvScale[2]
-                        })
                         lg.setColor(tile.layers[layerIdx].fsm:getColor())
-                        lg.draw(assets[dirtType], tx, ty)
+                        lg.draw(assets[dirtType], blobtiles.getQuad(bitmask), tx, ty)
                     end
                 end
 
                 if showDebug then
-                    lg.setShader()
                     lg.setColor(0, 0, 1)
                     local recentlyScrubbed = #tile.scrubFreqMeas > 0
                         and tile.scrubFreqMeas.samples[1] > scene.simTime - 0.1
@@ -389,8 +361,6 @@ function scene.draw(dt)
                 end
             end
         end
-
-        lg.setShader()
 
         lg.setColor(1, 1, 1)
         particles.draw("bubbles")

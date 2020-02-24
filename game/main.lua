@@ -4,6 +4,7 @@ require("libs.slam")
 
 local scenes = require("scenes")
 local codex = require("codex")
+local blobtiles = require("blobtiles")
 
 assetList = {
     assets.image("handSponge"),
@@ -20,8 +21,8 @@ assetList = {
 
     assets.image("backgroundMetal"),
 
-    assets.image("goo"),
-    assets.image("specks"),
+    assets.image("goo", "gloop.png"),
+    assets.image("specks", "fleb.png"),
     assets.image("transitions"),
 
     assets.image("bubble1"),
@@ -49,6 +50,7 @@ function love.load(arg)
     const.reload()
     assets.load(assetList)
     codex.init()
+    blobtiles.init(const.dirtTileSize)
 
     scenes.require()
     for name, scene in pairs(scenes) do
