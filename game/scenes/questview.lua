@@ -45,6 +45,7 @@ scene.activeQuests = {
 scene.selectedQuest = nil
 
 local detailDialogBox = nil
+local headsetGuySound = nil
 
 local overviewWidth = 200
 local padding = 15
@@ -121,11 +122,17 @@ function scene.mousepressed(x, y, button)
             if hover and scene.selectedQuest ~= i then
                 scene.selectedQuest = i
                 detailDialogBox = DialogBox(quest.description, 35)
+                if headsetGuySound then
+                    headsetGuySound:stop()
+                    headsetGuySound = nil
+                end
                 if quest.read then
                     -- efficiency first! :>
                     detailDialogBox:finish()
+                else
+                    headsetGuySound = assets.voiceGuyGlorzak:play()
+                    quest.read = true
                 end
-                quest.read = true
                 break
             end
         end
@@ -133,6 +140,8 @@ function scene.mousepressed(x, y, button)
         if scene.selectedQuest and detailDialogBox:isFinished() then
             local x, y, w, h = getStartButtonRect()
             if util.math.pointInRect(mx, my, x, y, w, h) then
+                headsetGuySound:stop()
+                headsetGuySound = nil
                 scenes.enter(scenes.transition, scenes.clean)
             end
         end

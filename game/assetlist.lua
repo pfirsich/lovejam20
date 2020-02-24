@@ -39,5 +39,7 @@ return {
     assets.font("computerfont", "m6x11.fnt"),
     assets.image("headsetGuy"),
 
-    assets.image("pixel")
+    assets.image("pixel"),
+
+    assets.sound("voiceGuyGlorzak", "guy/glorzak.wav"),
 }
