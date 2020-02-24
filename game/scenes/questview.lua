@@ -1,5 +1,6 @@
 local scenes = require("scenes")
 local DialogBox = require("dialogbox")
+local gui = require("shittygui")
 
 local scene = {}
 
@@ -51,11 +52,15 @@ local panelBgColor = const.palette[27]
 local outlineColor = const.palette[23]
 local textColor = const.palette[32]
 
-local buttonPadding = 5
-local buttonBgColor = const.palette[4]
-local buttonHoverBgColor = const.palette[6]
-local buttonSelectBgColor = const.palette[5]
-local buttonSelectOutlineColor = const.palette[25]
+local buttonStyle = {
+    textPadding = 5,
+    bgColor = const.palette[4],
+    outlineColor = const.palette[23],
+    hoverBgColor = const.palette[6],
+    markedBgColor = const.palette[5],
+    markedOutlineColor = const.palette[25],
+    textColor = const.palette[32],
+}
 
 local startWidth = 120
 local startHeight = 40
@@ -99,31 +104,6 @@ local function getStartButtonRect()
     local x = dx + detailsPadding + math.floor(freeWidth / 4 - startWidth / 2)
     local y = dy + dh - detailsPadding - startHeight
     return x, y, startWidth, startHeight
-end
-
-local function drawButton(text, x, y, w, h, textAlign, hovered, marked)
-    if hovered then
-        lg.setColor(buttonHoverBgColor)
-    else
-        if marked then
-            lg.setColor(buttonSelectBgColor)
-        else
-            lg.setColor(buttonBgColor)
-        end
-    end
-    lg.rectangle("fill", x, y, w, h)
-    if marked then
-        lg.setColor(buttonSelectOutlineColor)
-    else
-        lg.setColor(outlineColor)
-    end
-    lg.rectangle("line", x, y, w, h)
-
-    local textX = x + buttonPadding
-    local fontH = assets.computerfont:getHeight()
-    local textY = math.floor(y + h / 2 - fontH / 2)
-    lg.setColor(textColor)
-    lg.printf(text, textX, textY, w - buttonPadding * 2, textAlign or "left")
 end
 
 function scene.mousepressed(x, y, button)
@@ -182,7 +162,7 @@ function scene.draw(dt)
             if not quest.read then
                 text = "! " .. text
             end
-            drawButton(text, x, y, w, h, "left", hovered, selected)
+            gui.drawButton(text, x, y, w, h, hovered, selected, buttonStyle)
         end
 
         -- quest details view
@@ -199,24 +179,27 @@ function scene.draw(dt)
             local y = dy + detailsPadding
             local freeWidth = dw - detailsPadding * 2
 
-            local challengesString = "Challenges:"
-            for _, type in ipairs(quest.dirtTypes) do
-                challengesString = challengesString .. ("\n- %s poop"):format(type)
-            end
-            --local text = quest.description .. "\n\n" .. challengesString
-
             lg.print(quest.title, x, y)
 
             assert(detailDialogBox)
-            detailDialogBox:draw(x, y + detailsDescriptionOffset, freeWidth)
-            --lg.printf(text, x, y + detailsDescriptionOffset, freeWidth)
+            detailDialogBox:draw(x, y + fontH * 2, freeWidth)
 
             if detailDialogBox:isFinished() then
+                local challengesString = "Challenges:"
+                for _, type in ipairs(quest.dirtTypes) do
+                    challengesString = challengesString .. ("\n- %s poop"):format(type)
+                end
+                local descrLines = #select(2, font:getWrap(detailDialogBox.string, freeWidth))
+                lg.print(challengesString, x, y + fontH * (descrLines + 3))
+
                 local startX, startY, startWidth, startHeight = getStartButtonRect()
                 local hovered = util.math.pointInRect(mx, my,
                     startX, startY, startWidth, startHeight)
-                drawButton("Deploy", startX, startY, startWidth, startHeight,
-                    "center", hovered)
+                -- hax, idc
+                buttonStyle.textAlign = "center"
+                gui.drawButton("Deploy", startX, startY, startWidth, startHeight,
+                    hovered, false, buttonStyle)
+                buttonStyle.textAlign = nil
             else
                 lg.setColor(1, 1, 1)
                 local guy = assets.headsetGuy
