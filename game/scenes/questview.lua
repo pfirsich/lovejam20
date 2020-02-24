@@ -7,6 +7,7 @@ local scene = {}
 
 quests = {
     {
+        id = "first",
         title = "Poop in the Sink",
         description = {
             {"Hey Chief!", 0.6, 0.4},
@@ -16,26 +17,28 @@ quests = {
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
     },
-    -- {
-    --     title = "A Total Mess",
-    --     description = {
-    --         {"Hey Chief!", 0.6, 0.4},
-    --         {"We have a situation in the Medical Sector.", 1.8, 0.2},
-    --         {"A Glargle has pooped in the sink!", 2.0},
-    --     },
-    --     dirtTypes = {"Glorzak", "Fleeb", "Glob"},
-    --     read = false,
-    -- },
-    -- {
-    --     title = "Sheesh!",
-    --     description = {
-    --         {"Hey Chief!", 0.6, 0.4},
-    --         {"We have a situation in the Medical Sector.", 1.8, 0.2},
-    --         {"A Fleeb has pooped in the sink!", 2.0},
-    --     },
-    --     dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
-    --     read = false,
-    -- },
+    {
+        title = "A Total Mess",
+        description = {
+            {"Hey Chief!", 0.6, 0.4},
+            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"A Glargle has pooped in the sink!", 2.0},
+        },
+        dirtTypes = {"Glorzak", "Fleeb", "Glob"},
+        read = false,
+        requires = {"first"},
+    },
+    {
+        title = "Sheesh!",
+        description = {
+            {"Hey Chief!", 0.6, 0.4},
+            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"A Fleeb has pooped in the sink!", 2.0},
+        },
+        dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
+        read = false,
+        requires = {"first"},
+    },
 }
 scene.selectedQuest = nil
 
@@ -141,7 +144,26 @@ local function getStartButtonRect()
     return x, y, startWidth, startHeight
 end
 
+local function getQuestById(id)
+    for _, quest in ipairs(quests) do
+        if quest.id == id then
+            return quest
+        end
+    end
+    return nil
+end
+
 local function isQuestUnlocked(idx)
+    if not quests[idx].requires then
+        return true
+    end
+
+    for _, required in ipairs(quests[idx].requires) do
+        local quest = getQuestById(required)
+        if not quest.done then
+            return false
+        end
+    end
     return true
 end
 
