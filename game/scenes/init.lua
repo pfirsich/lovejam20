@@ -2,6 +2,8 @@ local mod = {}
 -- I do it this way, so you can iterate over the k,v pairs in scenes and don't find current, require and enter as well
 local scenes = setmetatable({}, {__index = mod})
 
+local stack = {}
+
 mod.current = {}
 
 function mod.enter(scene, ...)
@@ -9,9 +11,36 @@ function mod.enter(scene, ...)
         mod.current.exit(scene)
     end
 
+    stack = {} -- if you enter after a push, remove it all
     mod.current = scene
     if mod.current.enter then
         mod.current.enter(...)
+    end
+end
+
+function mod.push(scene, ...)
+    if mod.current and mod.current.pause then
+        mod.current.pause(scene)
+    end
+
+    table.insert(stack, mod.current)
+    mod.current = scene
+    if mod.current.enter then
+        mod.current.enter(...)
+    end
+end
+
+function mod.pop()
+    assert(#stack > 0)
+    local top = table.remove(stack)
+
+    if mod.current and mod.current.exit then
+        mod.current.exit(top)
+    end
+
+    mod.current = top
+    if mod.current.resume then
+        mod.current.resume()
     end
 end
 

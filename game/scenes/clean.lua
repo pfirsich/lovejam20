@@ -280,6 +280,17 @@ function scene.keypressed(key)
     if key == "backspace" then
         scenes.enter(scenes.questview)
     end
+
+    if key == "escape" then
+        scenes.push(scenes.query, "Return to Mission Control?", {
+            {key = "return", text = "<Return> to return to Mission Control", callback = function()
+                scenes.enter(scenes.questview)
+            end},
+            {key = "escape", text = "<Escape> to abort", callback = function()
+                scenes.pop()
+            end}
+        })
+    end
 end
 
 function scene.mousepressed(x, y, button)

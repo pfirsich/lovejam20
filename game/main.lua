@@ -44,6 +44,10 @@ function love.keypressed(key)
         const.reload()
         print("Constants reloaded.")
     end
+
+    if key == "f7" then
+        scenes.enter(scenes.clean)
+    end
 end
 
 function love.run()
