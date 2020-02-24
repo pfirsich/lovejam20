@@ -223,7 +223,7 @@ function scene.tick()
         end
     end
 
-    if not tilesDirty or (DEVMODE and lk.isDown("f9")) then
+    if not tilesDirty or (DEVMODE and (lk.isDown("f9") or lk.isDown("o"))) then
         scenes.enter(scenes.query, "Job well done!", {
             {key = "return", text = "<Return> to return to Mission Control", callback = function()
                 scenes.enter(scenes.questview, true)
