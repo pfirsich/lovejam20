@@ -20,7 +20,7 @@ local buttonStyle = {
 }
 
 function scene.enter(_storySequence, _nextScene, ...)
-    dialogBox = DialogBox(_storySequence.dialog)
+    dialogBox = DialogBox(_storySequence.dialog, 25)
     storySequence = _storySequence
     nextScene = _nextScene
     nextSceneParams = {...}

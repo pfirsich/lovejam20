@@ -1,4 +1,5 @@
 local Book = require("libs.book")
+local blobtiles = require("blobtiles")
 
 local codex = {}
 
@@ -30,7 +31,7 @@ local function image(assetName, scale, y)
 end
 
 local function recipeDirtImage(asset)
-    return image(asset, 0.4, 0.15)
+    return {type = "dirttile", asset = asset, scale = 0.4, y = 0.15}
 end
 
 local pages = {
@@ -141,6 +142,14 @@ function codex.init()
                 local y = pageY + math.floor(element.y * freePageY)
                 lg.setColor(1, 1, 1)
                 lg.draw(image, x, y, 0, scale)
+            elseif element.type == "dirttile" then
+                -- copy paste, gotta get done here
+                local image = assets[element.asset]
+                local scale = freePageX / const.dirtTileSize * element.scale
+                local x = pageX + pageWidth / 2 - const.dirtTileSize / 2 * scale
+                local y = pageY + math.floor(element.y * freePageY)
+                lg.setColor(1, 1, 1)
+                lg.draw(image, blobtiles.getQuad(0), x, y, 0, scale)
             end
         end
     end

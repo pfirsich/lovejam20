@@ -19,7 +19,7 @@ local quads = {}
 function blobtiles.init(tileSize)
     for i = 1, maxMaskIndex do
         local mask = masks[i]
-        if mask then
+        if mask ~= nil then
             local ix = (i - 1) % masksCountX
             local iy = math.floor((i - 1) / masksCountX)
             quads[mask] = love.graphics.newQuad(

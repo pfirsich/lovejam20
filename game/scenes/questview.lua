@@ -12,7 +12,7 @@ scene.activeQuests = {
             {text = "", duration = 0.4},
             {text = "We have a situation in the Medical Sector.", duration = 1.8},
             {text = "", duration = 0.2},
-            {text = "A Glargle has pooped in the sink!", duration = 2.0},
+            {text = "A Glorzak has pooped in the sink!", duration = 2.0},
         },
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
@@ -24,7 +24,7 @@ scene.activeQuests = {
             {text = "", duration = 0.4},
             {text = "We have a situation in the Medical Sector.", duration = 1.8},
             {text = "", duration = 0.2},
-            {text = "A Glorzak has pooped in the sink!", duration = 2.0},
+            {text = "A Glargle has pooped in the sink!", duration = 2.0},
         },
         dirtTypes = {"Glorzak", "Fleeb", "Glob"},
         read = false,
@@ -215,12 +215,13 @@ function scene.draw(dt)
                     startX, startY, startWidth, startHeight)
                 gui.drawButton("Deploy", startX, startY, startWidth, startHeight,
                     hovered, false, buttonStyle)
-            else
+            end
+
+            if headsetGuySound then
                 lg.setColor(1, 1, 1)
                 local guy = assets.headsetGuy
                 local gx = dx + dw - detailsPadding - guy:getWidth()
                 local gy = dy + dh - detailsPadding - guy:getHeight()
-                lg.circle("fill", gx, gy, 3)
                 lg.draw(guy, gx, gy)
             end
         end
