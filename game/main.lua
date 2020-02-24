@@ -24,15 +24,16 @@ function love.load(arg)
     scenes.enter(scenes.questview)
     scenes.enter(scenes.storysequence, {
         dialog = {
-            {text = "The year is 2264 and you've made it."},
-            {text = "You are the head janitor at the intergalatic space station L4P7."},
-            {text = "Only three years after basic training at the academy you reached the very top."},
-            {text = "But not without a cost."},
-            {text = "Two months ago your master Rüdiger-sensei died in a mission cleaning up a Glorzag-poop spill."},
-            {text = "It was a routine job and Rüdiger-sensei was a pro."},
-            {text = "Something is off about this and you will figure out what it is."},
-            {text = "For now though, you have simply have to do your job."},
+            {"The year is 2264 and I've made it.", 2.5, 0.5},
+            {"I am the head janitor at the intergalatic space station Garzikulon Prime.", 3.8, 0.7},
+            {"Only three years after basic training at the academy I reached the very top.", 4.0, 0.6},
+            {"But not without a cost.", 1.5, 0.4},
+            {"Two months ago my master Rüdiger-sensei died in a mission cleaning up a Glorzag-poop spill.", 4.0, 0.8},
+            {"It was a routine job and Rüdiger-sensei was a pro.", 3.0, 0.5},
+            {"Something is off about this and I will figure out what it is.", 3.5, 0.5},
+            {"For now though, I simply have have to do my job.", 2.5},
         },
+        audio = assets.voiceIntro,
         buttonText = "Do your job",
     }, scenes.questview)
 end

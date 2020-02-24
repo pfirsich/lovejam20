@@ -41,5 +41,7 @@ return {
 
     assets.image("pixel"),
 
+    assets.sound("voiceIntro", "hypercringe.ogg"),
+
     assets.sound("voiceGuyGlorzak", "guy/glorzak.wav"),
 }

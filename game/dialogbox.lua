@@ -7,21 +7,27 @@ end
 
 local DialogBox = class("DialogBox")
 
-function DialogBox:initialize(lines, defaultCharPerSec, lineDelim)
+function DialogBox:initialize(_lines, defaultCharPerSec, lineDelim)
     defaultCharPerSec = defaultCharPerSec or 50
     self.lineDelim = lineDelim or "\n"
-    self.lines = lines
+    self.lines = {}
     self.currentLine = 1
     self.lineProgress = 0 -- actually a float
     self.string = ""
 
-    for _, line in ipairs(lines) do
+    for _, _line in ipairs(_lines) do
+        local line = {
+            text = _line[1],
+            duration = _line[2],
+            wait = _line[3]
+        }
         line.charCount = utf8.len(line.text)
         if line.duration then
             line.charPerSec = line.charCount / line.duration
         else
             line.charPerSec = defaultCharPerSec
         end
+        table.insert(self.lines, line)
     end
 end
 
@@ -41,7 +47,8 @@ function DialogBox:updateString()
         table.insert(lines, self.lines[i].text)
     end
     local curLine = self.lines[self.currentLine]
-    table.insert(lines, utf8sub(curLine.text, 1, math.floor(self.lineProgress)))
+    local chars = math.min(curLine.charCount, math.floor(self.lineProgress))
+    table.insert(lines, utf8sub(curLine.text, 1, chars))
     self.string = table.concat(lines, self.lineDelim)
 end
 
@@ -49,8 +56,8 @@ function DialogBox:update(dt)
     local oldLineProgress = math.floor(self.lineProgress)
     local line = self.lines[self.currentLine]
     self.lineProgress = self.lineProgress + line.charPerSec * dt
-    self.lineProgress = math.min(line.charCount, self.lineProgress)
-    if self.lineProgress == line.charCount then
+    local toSkip = line.charCount + line.charPerSec * (line.wait or 0)
+    if self.lineProgress >= toSkip then
         self:skip()
     elseif math.floor(self.lineProgress) ~= oldLineProgress then
         self:updateString()

@@ -8,6 +8,7 @@ local dialogBox = nil
 local storySequence = nil
 local nextScene = nil
 local nextSceneParams = nil
+local audio = nil
 
 local buttonStyle = {
     textPadding = 5,
@@ -24,6 +25,10 @@ function scene.enter(_storySequence, _nextScene, ...)
     storySequence = _storySequence
     nextScene = _nextScene
     nextSceneParams = {...}
+
+    if storySequence.audio then
+        audio = storySequence.audio:play()
+    end
 end
 
 function scene.tick()
@@ -46,6 +51,8 @@ function scene.mousepressed(x, y, button)
         if dialogBox:isFinished() then
             local x, y, w, h = getButtonRect()
             if util.math.pointInRect(mx, my, x, y, w, h) then
+                audio:stop()
+                audio = nil
                 scenes.enter(nextScene, unpack(nextSceneParams))
             end
         else

@@ -8,11 +8,9 @@ scene.activeQuests = {
     {
         title = "Poop in the Sink",
         description = {
-            {text = "Hey Chief!", duration = 0.6},
-            {text = "", duration = 0.4},
-            {text = "We have a situation in the Medical Sector.", duration = 1.8},
-            {text = "", duration = 0.2},
-            {text = "A Glorzak has pooped in the sink!", duration = 2.0},
+            {"Hey Chief!", 0.6, 0.4},
+            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"A Glorzak has pooped in the sink!", 2.0},
         },
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
@@ -20,11 +18,9 @@ scene.activeQuests = {
     {
         title = "A Total Mess",
         description = {
-            {text = "Hey Chief!", duration = 0.6},
-            {text = "", duration = 0.4},
-            {text = "We have a situation in the Medical Sector.", duration = 1.8},
-            {text = "", duration = 0.2},
-            {text = "A Glargle has pooped in the sink!", duration = 2.0},
+            {"Hey Chief!", 0.6, 0.4},
+            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"A Glargle has pooped in the sink!", 2.0},
         },
         dirtTypes = {"Glorzak", "Fleeb", "Glob"},
         read = false,
@@ -32,11 +28,9 @@ scene.activeQuests = {
     {
         title = "Sheesh!",
         description = {
-            {text = "Hey Chief!", duration = 0.6},
-            {text = "", duration = 0.4},
-            {text = "We have a situation in the Medical Sector.", duration = 1.8},
-            {text = "", duration = 0.2},
-            {text = "A Fleeb has pooped in the sink!", duration = 2.0},
+            {"Hey Chief!", 0.6, 0.4},
+            {"We have a situation in the Medical Sector.", 1.8, 0.2},
+            {"A Fleeb has pooped in the sink!", 2.0},
         },
         dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
         read = false,
