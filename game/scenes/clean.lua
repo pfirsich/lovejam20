@@ -413,7 +413,7 @@ function scene.draw(dt)
             elseif scrubAmount < 0.33333 then
                 gaugeImg = "gaugeSlow"
             elseif scrubAmount < 0.6666 then
-                gaugeImg = "gaugeMed"
+                gaugeImg = "gaugeBrisk"
             end
             lg.setColor(1, 1, 1)
             lg.draw(assets[gaugeImg], gaugeX, gaugeY)
