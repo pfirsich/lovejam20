@@ -8,9 +8,11 @@ scene.activeQuests = {
     {
         title = "Poop in the Sink",
         description = {
-            {text = "Hey Chief!"},
-            {text = "We have a situation in the Medical Sector."},
-            {text = "A Glargle has pooped in the sink!"},
+            {text = "Hey Chief!", duration = 0.6},
+            {text = "", duration = 0.4},
+            {text = "We have a situation in the Medical Sector.", duration = 1.8},
+            {text = "", duration = 0.2},
+            {text = "A Glargle has pooped in the sink!", duration = 2.0},
         },
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
@@ -18,9 +20,11 @@ scene.activeQuests = {
     {
         title = "A Total Mess",
         description = {
-            {text = "Hey Chief!"},
-            {text = "We have a situation in the Medical Sector."},
-            {text = "A Glorzak has pooped in the sink!"},
+            {text = "Hey Chief!", duration = 0.6},
+            {text = "", duration = 0.4},
+            {text = "We have a situation in the Medical Sector.", duration = 1.8},
+            {text = "", duration = 0.2},
+            {text = "A Glorzak has pooped in the sink!", duration = 2.0},
         },
         dirtTypes = {"Glorzak", "Fleeb", "Glob"},
         read = false,
@@ -28,9 +32,11 @@ scene.activeQuests = {
     {
         title = "Sheesh!",
         description = {
-            {text = "Hey Chief!"},
-            {text = "We have a situation in the Medical Sector."},
-            {text = "A Fleeb has pooped in the sink!"},
+            {text = "Hey Chief!", duration = 0.6},
+            {text = "", duration = 0.4},
+            {text = "We have a situation in the Medical Sector.", duration = 1.8},
+            {text = "", duration = 0.2},
+            {text = "A Fleeb has pooped in the sink!", duration = 2.0},
         },
         dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
         read = false,
@@ -162,7 +168,10 @@ function scene.draw(dt)
             if not quest.read then
                 text = "! " .. text
             end
+            -- hax, idc
+            buttonStyle.textAlign = "left"
             gui.drawButton(text, x, y, w, h, hovered, selected, buttonStyle)
+            buttonStyle.textAlign = nil
         end
 
         -- quest details view
@@ -195,11 +204,8 @@ function scene.draw(dt)
                 local startX, startY, startWidth, startHeight = getStartButtonRect()
                 local hovered = util.math.pointInRect(mx, my,
                     startX, startY, startWidth, startHeight)
-                -- hax, idc
-                buttonStyle.textAlign = "center"
                 gui.drawButton("Deploy", startX, startY, startWidth, startHeight,
                     hovered, false, buttonStyle)
-                buttonStyle.textAlign = nil
             else
                 lg.setColor(1, 1, 1)
                 local guy = assets.headsetGuy

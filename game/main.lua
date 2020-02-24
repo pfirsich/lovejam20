@@ -22,6 +22,19 @@ function love.load(arg)
         util.callNonNil(scene.load)
     end
     scenes.enter(scenes.questview)
+    scenes.enter(scenes.storysequence, {
+        dialog = {
+            {text = "The year is 2264 and you've made it."},
+            {text = "You are the head janitor at the intergalatic space station L4P7."},
+            {text = "Only three years after basic training at the academy you reached the very top."},
+            {text = "But not without a cost."},
+            {text = "Two months ago your master Rüdiger-sensei died in a mission trying cleaning a Glorzag-poop spill."},
+            {text = "It was a routine job and Rüdiger-sensei was a pro."},
+            {text = "Something is off about this and you will figure out what it is."},
+            {text = "For now though, you have simply have to do your job."},
+        },
+        buttonText = "Do your job",
+    }, scenes.questview)
 end
 
 function love.keypressed(key)
