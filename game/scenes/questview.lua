@@ -134,8 +134,10 @@ function scene.mousepressed(x, y, button)
         if scene.selectedQuest and detailDialogBox:isFinished() then
             local x, y, w, h = getStartButtonRect()
             if util.math.pointInRect(mx, my, x, y, w, h) then
-                headsetGuySound:stop()
-                headsetGuySound = nil
+                if headsetGuySound then
+                    headsetGuySound:stop()
+                    headsetGuySound = nil
+                end
                 scenes.enter(scenes.transition, scenes.clean)
             end
         end
