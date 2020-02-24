@@ -21,7 +21,6 @@ function love.load(arg)
         scene.frameCounter = 0
         util.callNonNil(scene.load)
     end
-    scenes.enter(scenes.questview)
     scenes.enter(scenes.storysequence, {
         dialog = {
             {"The year is 2264 and I've made it.", 2.5, 0.5},

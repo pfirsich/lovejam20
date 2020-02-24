@@ -1,6 +1,7 @@
 local scenes = require("scenes")
 local DialogBox = require("dialogbox")
 local gui = require("shittygui")
+local codex = require("codex")
 
 local scene = {}
 
@@ -41,12 +42,16 @@ scene.selectedQuest = nil
 local detailDialogBox = nil
 local headsetGuySound = nil
 
+local numVisits = 0
+local codexEnabled = false
+
 local overviewWidth = 200
 local padding = 15
 local elementHeight = 25
 local elementMargin = 5
 local detailsPadding = 10
 local detailsDescriptionOffset = 30
+local codexBottomMargin = 40
 
 local bgColor = const.palette[3]
 local panelBgColor = const.palette[27]
@@ -68,11 +73,22 @@ local startHeight = 40
 
 function scene.enter()
     scene.selectedQuest = nil
+    detailDialogBox = nil
+    headsetGuySound = nil
+
+    numVisits = numVisits + 1
+    codexEnabled = numVisits > 1
+    if codexEnabled then
+        codex.init()
+    end
 end
 
 function scene.tick()
     if detailDialogBox then
         detailDialogBox:update(const.simDt)
+    end
+    if codexEnabled then
+        codex.update(const.simDt)
     end
 end
 
@@ -80,6 +96,9 @@ local function getOverviewRect()
     local x = padding
     local y = padding
     local h = const.resY - padding * 2
+    if codexEnabled then
+        h = h - codexBottomMargin
+    end
     return x, y, overviewWidth, h
 end
 
@@ -110,6 +129,11 @@ end
 function scene.mousepressed(x, y, button)
     if button == 1 then
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
+        codex.mousepressed(mx, my)
+        if codexEnabled and codex.hovered then
+            return
+        end
+
         for i, quest in ipairs(scene.activeQuests) do
             local x, y, w, h = getQuestRect(i)
             local hover = util.math.pointInRect(mx, my, x, y, w, h)
@@ -151,12 +175,20 @@ function scene.mousepressed(x, y, button)
     end
 end
 
+function scene.keypressed(key)
+    if codexEnabled then
+        codex.keypressed(key)
+    end
+end
+
 function scene.draw(dt)
     local font = assets.computerfont
     local fontH = font:getHeight()
     lg.setFont(font)
     util.gfx.pixelCanvas(const.resX, const.resY, bgColor, function(dt)
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
+
+        local interactable = false
 
         -- quest overview
         local ox, oy, ow, oh = getOverviewRect()
@@ -173,6 +205,7 @@ function scene.draw(dt)
             if not quest.read then
                 text = "! " .. text
             end
+            interactable = interactable or hovered
             -- hax, idc
             buttonStyle.textAlign = "left"
             gui.drawButton(text, x, y, w, h, hovered, selected, buttonStyle)
@@ -209,6 +242,7 @@ function scene.draw(dt)
                 local startX, startY, startWidth, startHeight = getStartButtonRect()
                 local hovered = util.math.pointInRect(mx, my,
                     startX, startY, startWidth, startHeight)
+                interactable = interactable or hovered
                 gui.drawButton("Deploy", startX, startY, startWidth, startHeight,
                     hovered, false, buttonStyle)
             end
@@ -221,7 +255,19 @@ function scene.draw(dt)
                 lg.draw(guy, gx, gy)
             end
         end
+
+        if codexEnabled then
+            interactable = interactable or codex.hovered
+            codex.draw()
+        end
+
+        local mx, my = util.gfx.getMouse(const.resX, const.resY)
+        local handImage = interactable and assets.handPoint or assets.handOpen
+        local imgW, imgH = handImage:getDimensions()
+        lg.draw(handImage, mx, my, 0, 0, imgW/2, imgH/2)
     end, dt)
+
+    lg.print(tostring(lt.getFPS()), 5, 5)
 end
 
 return scene

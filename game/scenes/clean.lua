@@ -25,9 +25,6 @@ local currentTool = "sponge"
 
 local showDebug = false
 
-local codexMaxPos = math.floor(const.resY / const.dirtTileSize) * const.dirtTileSize
-local codexPosition = codexMaxPos
-
 local scrubbing = false
 
 local dirt = nil
@@ -203,22 +200,13 @@ end
 
 function scene.tick()
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
-    local hoverCodex = my >= codexPosition
     local mouseDown = love.mouse.isDown(1)
 
     if scrubbing then
         scrub()
     end
 
-    codex.update(const.simDt)
-    local codexMove = math.sin(codexPosition / const.resY * math.pi / 2.0)
-        * const.codexMoveSpeed * const.simDt
-    if my >= codexPosition and not scrubbing then
-        codexPosition = codexPosition - codexMove
-    else
-        codexPosition = codexPosition + codexMove
-    end
-    codexPosition = util.math.clamp(codexPosition, const.codexPaddingTop, codexMaxPos)
+    codex.update(const.simDt, scrubbing)
 
     local tilesDirty = false
     for y = 1, #dirt.tiles do
@@ -258,7 +246,6 @@ end
 
 function scene.keypressed(key)
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
-    local hoverCodex = my >= codexPosition
 
     if key == "t" then
         currentTool = "sponge"
@@ -270,14 +257,9 @@ function scene.keypressed(key)
         currentTool = "oktoplox"
     end
 
-    if hoverCodex then
-        if my >= codexPosition then
-            local n = tonumber(key)
-            if n then
-                codex.targetPosition = n
-            end
-        end
-    else
+    codex.keypressed(key)
+
+    if not codex.hovered then
         if key == "g" then
             applyCleaner("cleanerA")
         elseif key == "f" then
@@ -306,13 +288,8 @@ end
 function scene.mousepressed(x, y, button)
     local mx, my = util.gfx.getMouse(const.resX, const.resY)
     if button == 1 then
-        if my >= codexPosition then
-            if mx < const.resX / 2 then
-                codex.targetPosition = codex.targetPosition - 1
-            else
-                codex.targetPosition = codex.targetPosition + 1
-            end
-        else
+        codex.mousepressed(mx, my)
+        if not codex.hovered then
             scrubbing = true
         end
     end
@@ -406,17 +383,14 @@ function scene.draw(dt)
             end
         end
 
-        lg.setColor(1, 1, 1)
-        codex.draw(codexPosition)
+        codex.draw()
 
+        lg.setColor(1, 1, 1)
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
-        local hoverCodex = my >= codexPosition
-
-        lg.setColor(1, 1, 1)
         local tool = tools[currentTool]
         local handImage = assets[tool.image]
-        if hoverCodex then
-            handImage = love.mouse.isDown(1) and assets.handPoint or assets.handOpen
+        if codex.hovered then
+            handImage = assets.handPoint
         end
         local imgW, imgH = handImage:getDimensions()
         lg.draw(handImage, mx, my, 0, 1, 1, imgW/2, imgH/2)
@@ -424,7 +398,7 @@ function scene.draw(dt)
         lg.setColor(1, 1, 1)
         particles.draw("sparkles")
 
-        if not hoverCodex then
+        if not codex.hovered then
             local scrubFreq = totalScrubFreqMeas:get(scene.simTime)
             local gaugeX = mx + const.gaugeOffset[1]
             local gaugeY = my + const.gaugeOffset[2]

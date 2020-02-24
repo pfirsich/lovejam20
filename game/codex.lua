@@ -8,16 +8,12 @@ local codex = {}
 
 local pageWidth = 300
 local pageHeight = 350
+local maxPos = math.floor(const.resY / const.dirtTileSize) * const.dirtTileSize
 
 local function text(text, y, params)
     params = params or {}
-    return {
-        type = "text",
-        text = text,
-        y = y,
-        scale = params.scale or 1,
-        align = params.align or "left",
-        valign = params.valign or "top",
+    return {type = "text", text = text, y = y, scale = params.scale or 1,
+        align = params.align or "left", valign = params.valign or "top",
         color = params.color or {0, 0, 0, 1},
     }
 end
@@ -82,6 +78,7 @@ D to apply Blinge]], 0),
 
 codex.targetPosition = 1
 codex.book = nil
+codex.position = 0
 
 function codex.init()
     local fontCache = {}
@@ -168,9 +165,11 @@ function codex.init()
         onFlip = function (self) end,
     }
     codex.book.currentPage = 2
+
+    codex.position = maxPos
 end
 
-function codex.update(dt)
+function codex.update(dt, dontMove)
     assert(codex.book)
     local targetPage = 2 * util.math.clamp(codex.targetPosition, 1, #pages / 2)
 
@@ -185,11 +184,44 @@ function codex.update(dt)
         end
     end
     codex.book:update(dt * dtFactor)
+
+    local mx, my = util.gfx.getMouse(const.resX, const.resY)
+    local move = math.sin(codex.position / const.resY * math.pi / 2.0)
+        * const.codexMoveSpeed * const.simDt
+    if my >= codex.position and not dontMove then
+        codex.position = codex.position - move
+    else
+        codex.position = codex.position + move
+    end
+    codex.position = util.math.clamp(codex.position, const.codexPaddingTop, maxPos)
+
+    codex.hovered = my >= codex.position
 end
 
-function codex.draw(y)
+function codex.mousepressed(mx, my)
+    if codex.hovered then
+        if mx < const.resX / 2 then
+            codex.targetPosition = codex.targetPosition - 1
+        else
+            codex.targetPosition = codex.targetPosition + 1
+        end
+        codex.targetPosition = util.math.clamp(codex.targetPosition, 1, #pages / 2)
+    end
+end
+
+function codex.keypressed(key)
+    if codex.hovered then
+        local n = tonumber(key)
+        if n then
+            codex.targetPosition = n
+        end
+    end
+end
+
+function codex.draw()
     assert(codex.book)
     lg.setColor(1, 1, 1, 1)
+    local y = codex.position
     local backX = const.resX / 2 - assets.bookBack:getWidth() / 2
     lg.draw(assets.bookBack, backX, y - 15) -- yeees, harcoded shit
     local x = const.resX / 2 - pageWidth
