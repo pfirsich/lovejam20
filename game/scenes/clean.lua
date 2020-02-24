@@ -220,16 +220,26 @@ function scene.tick()
     end
     codexPosition = util.math.clamp(codexPosition, const.codexPaddingTop, codexMaxPos)
 
+    local tilesDirty = false
     for y = 1, #dirt.tiles do
         for x = 1, #dirt.tiles[y] do
             local tile = dirt.tiles[y][x]
             for layer = 1, dirt.layerCount do
                 if tile.layers[layer] then
+                    tilesDirty = true
                     tile.layers[layer].fsm:update(const.simDt)
                 end
             end
             tile.scrubFreqMeas:truncate(scene.simTime)
         end
+    end
+
+    if not tilesDirty then
+        scenes.enter(scenes.query, "Job well done!", {
+            {key = "return", text = "<Return> to return to Mission Control", callback = function()
+                scenes.enter(scenes.questview)
+            end},
+        })
     end
 
     totalScrubFreqMeas:truncate(scene.simTime)
