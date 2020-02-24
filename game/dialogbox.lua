@@ -62,6 +62,12 @@ function DialogBox:isFinished()
     return self.currentLine == #self.lines and self.lineProgress == line.charCount
 end
 
+function DialogBox:finish()
+    self.currentLine = #self.lines
+    self.lineProgress = self.lines[self.currentLine].charCount
+    self:updateString()
+end
+
 function DialogBox:draw(x, y, limit)
     love.graphics.printf(self.string, x, y, limit)
 end

@@ -132,9 +132,13 @@ function scene.mousepressed(x, y, button)
         for i, quest in ipairs(scene.activeQuests) do
             local x, y, w, h = getQuestRect(i)
             local hover = util.math.pointInRect(mx, my, x, y, w, h)
-            if hover then
+            if hover and scene.selectedQuest ~= i then
                 scene.selectedQuest = i
-                detailDialogBox = DialogBox(quest.description)
+                detailDialogBox = DialogBox(quest.description, 35)
+                if quest.read then
+                    -- efficiency first! :>
+                    detailDialogBox:finish()
+                end
                 quest.read = true
                 break
             end
@@ -213,6 +217,13 @@ function scene.draw(dt)
                     startX, startY, startWidth, startHeight)
                 drawButton("Deploy", startX, startY, startWidth, startHeight,
                     "center", hovered)
+            else
+                lg.setColor(1, 1, 1)
+                local guy = assets.headsetGuy
+                local gx = dx + dw - detailsPadding - guy:getWidth()
+                local gy = dy + dh - detailsPadding - guy:getHeight()
+                lg.circle("fill", gx, gy, 3)
+                lg.draw(guy, gx, gy)
             end
         end
     end, dt)

@@ -37,6 +37,7 @@ return {
     assets.image("bookBack"),
 
     assets.font("computerfont", "m6x11.fnt"),
+    assets.image("headsetGuy"),
 
     assets.image("pixel")
 }
