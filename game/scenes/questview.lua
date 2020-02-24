@@ -1,35 +1,43 @@
 local scenes = require("scenes")
+local DialogBox = require("dialogbox")
 
 local scene = {}
 
 scene.activeQuests = {
     {
         title = "Poop in the Sink",
-        description = "Hey Chief!\nWe have a situation in the Medical Sector.\nA Glargle has pooped in the sink!",
+        description = {
+            {text = "Hey Chief!"},
+            {text = "We have a situation in the Medical Sector."},
+            {text = "A Glargle has pooped in the sink!"},
+        },
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
     },
     {
         title = "A Total Mess",
-        description = "Hey Chief!\nWe have a situation in the Medical Sector.\nA Glorzak has pooped in the sink!",
+        description = {
+            {text = "Hey Chief!"},
+            {text = "We have a situation in the Medical Sector."},
+            {text = "A Glorzak has pooped in the sink!"},
+        },
         dirtTypes = {"Glorzak", "Fleeb", "Glob"},
         read = false,
     },
     {
         title = "Sheesh!",
-        description = "Hey Chief!\nWe have a situation in the Medical Sector.\nA Fleeb has pooped in the sink!",
+        description = {
+            {text = "Hey Chief!"},
+            {text = "We have a situation in the Medical Sector."},
+            {text = "A Fleeb has pooped in the sink!"},
+        },
         dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
         read = false,
     },
 }
 scene.selectedQuest = nil
 
-local inputState = {
-    mx = 0, my = 0,
-    pressed = false,
-    released = false,
-    lastDown = false,
-}
+local detailDialogBox = nil
 
 local overviewWidth = 200
 local padding = 15
@@ -57,11 +65,9 @@ function scene.enter()
 end
 
 function scene.tick()
-    inputState.mx, inputState.my = util.gfx.getMouse(const.resX, const.resY)
-    local down = love.mouse.isDown(1)
-    inputState.pressed = down and not inputState.lastDown
-    inputState.released = not down and inputState.lastDown
-    inputState.lastDown = down
+    if detailDialogBox then
+        detailDialogBox:update(const.simDt)
+    end
 end
 
 local function getOverviewRect()
@@ -128,14 +134,24 @@ function scene.mousepressed(x, y, button)
             local hover = util.math.pointInRect(mx, my, x, y, w, h)
             if hover then
                 scene.selectedQuest = i
+                detailDialogBox = DialogBox(quest.description)
                 quest.read = true
                 break
             end
         end
 
-        local x, y, w, h = getStartButtonRect()
-        if util.math.pointInRect(mx, my, x, y, w, h) then
-            scenes.enter(scenes.transition, scenes.clean)
+        if scene.selectedQuest and detailDialogBox:isFinished() then
+            local x, y, w, h = getStartButtonRect()
+            if util.math.pointInRect(mx, my, x, y, w, h) then
+                scenes.enter(scenes.transition, scenes.clean)
+            end
+        end
+
+        local dx, dy, dw, dh = getDetailsRect()
+        if util.math.pointInRect(mx, my, dx, dy, dw, dh) then
+            if detailDialogBox and not detailDialogBox:isFinished() then
+                detailDialogBox:skip()
+            end
         end
     end
 end
@@ -183,16 +199,21 @@ function scene.draw(dt)
             for _, type in ipairs(quest.dirtTypes) do
                 challengesString = challengesString .. ("\n- %s poop"):format(type)
             end
-            local text = quest.description .. "\n\n" .. challengesString
+            --local text = quest.description .. "\n\n" .. challengesString
 
             lg.print(quest.title, x, y)
-            lg.printf(text, x, y + detailsDescriptionOffset,
-                freeWidth)
 
-            local startX, startY, startWidth, startHeight = getStartButtonRect()
-            local hovered = util.math.pointInRect(mx, my, startX, startY, startWidth, startHeight)
-            drawButton("Deploy", startX, startY, startWidth, startHeight,
-                "center", hovered)
+            assert(detailDialogBox)
+            detailDialogBox:draw(x, y + detailsDescriptionOffset, freeWidth)
+            --lg.printf(text, x, y + detailsDescriptionOffset, freeWidth)
+
+            if detailDialogBox:isFinished() then
+                local startX, startY, startWidth, startHeight = getStartButtonRect()
+                local hovered = util.math.pointInRect(mx, my,
+                    startX, startY, startWidth, startHeight)
+                drawButton("Deploy", startX, startY, startWidth, startHeight,
+                    "center", hovered)
+            end
         end
     end, dt)
 end
