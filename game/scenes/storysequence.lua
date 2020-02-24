@@ -4,6 +4,30 @@ local DialogBox = require("dialogbox")
 
 local scene = {}
 
+sequences = {
+    intro = {
+        dialog = {
+            {"The year is 2264 and I've made it.", 2.5, 0.5},
+            {"I am the head janitor at the intergalatic space station Garzikulon Prime.", 3.8, 0.7},
+            {"Only three years after basic training at the academy I reached the very top.", 4.0, 0.6},
+            {"But not without a cost.", 1.5, 0.4},
+            {"Two months ago my master Rüdiger-sensei died in a mission cleaning up a Glorzag-poop spill.", 4.0, 0.8},
+            {"It was a routine job and Rüdiger-sensei was a pro.", 3.0, 0.5},
+            {"Something is off about this and I will figure out what it is.", 3.5, 0.5},
+            {"For now though, I simply have have to do my job.", 2.5},
+        },
+        audio = assets.voiceIntro,
+        buttonText = "Do your job",
+    },
+    done = {
+        dialog = {
+            {"Alien poop: obliterated.", 1.0, 1.0},
+        },
+        audio = nil,
+        buttonText = "Call It a Day",
+    },
+}
+
 local dialogBox = nil
 local storySequence = nil
 local nextScene = nil
@@ -20,9 +44,10 @@ local buttonStyle = {
     textColor = const.palette[32],
 }
 
-function scene.enter(_storySequence, _nextScene, ...)
-    dialogBox = DialogBox(_storySequence.dialog, 25)
-    storySequence = _storySequence
+function scene.enter(sequenceName, _nextScene, ...)
+    local sequence = sequences[sequenceName]
+    dialogBox = DialogBox(sequence.dialog, 25)
+    storySequence = sequence
     nextScene = _nextScene
     nextSceneParams = {...}
 

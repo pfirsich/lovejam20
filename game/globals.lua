@@ -19,4 +19,9 @@ class = require("libs.class")
 const = require("const")
 util = require("util")
 
+DEVMODE = true
+if lf.isFused() then
+    DEVMODE = false -- extra failsafe
+end
+
 const.reload()

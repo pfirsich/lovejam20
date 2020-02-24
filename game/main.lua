@@ -21,20 +21,7 @@ function love.load(arg)
         scene.frameCounter = 0
         util.callNonNil(scene.load)
     end
-    scenes.enter(scenes.storysequence, {
-        dialog = {
-            {"The year is 2264 and I've made it.", 2.5, 0.5},
-            {"I am the head janitor at the intergalatic space station Garzikulon Prime.", 3.8, 0.7},
-            {"Only three years after basic training at the academy I reached the very top.", 4.0, 0.6},
-            {"But not without a cost.", 1.5, 0.4},
-            {"Two months ago my master Rüdiger-sensei died in a mission cleaning up a Glorzag-poop spill.", 4.0, 0.8},
-            {"It was a routine job and Rüdiger-sensei was a pro.", 3.0, 0.5},
-            {"Something is off about this and I will figure out what it is.", 3.5, 0.5},
-            {"For now though, I simply have have to do my job.", 2.5},
-        },
-        audio = assets.voiceIntro,
-        buttonText = "Do your job",
-    }, scenes.questview)
+    scenes.enter(scenes.storysequence, "intro", scenes.questview)
 end
 
 function love.keypressed(key)
@@ -44,7 +31,7 @@ function love.keypressed(key)
         print("Constants reloaded.")
     end
 
-    if key == "f7" then
+    if DEVMODE and key == "f7" then
         scenes.enter(scenes.clean)
     end
 end

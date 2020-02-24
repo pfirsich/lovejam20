@@ -5,7 +5,7 @@ local codex = require("codex")
 
 local scene = {}
 
-scene.activeQuests = {
+quests = {
     {
         title = "Poop in the Sink",
         description = {
@@ -16,26 +16,26 @@ scene.activeQuests = {
         dirtTypes = {"Glorzak", "Glargle", "Glob"},
         read = false,
     },
-    {
-        title = "A Total Mess",
-        description = {
-            {"Hey Chief!", 0.6, 0.4},
-            {"We have a situation in the Medical Sector.", 1.8, 0.2},
-            {"A Glargle has pooped in the sink!", 2.0},
-        },
-        dirtTypes = {"Glorzak", "Fleeb", "Glob"},
-        read = false,
-    },
-    {
-        title = "Sheesh!",
-        description = {
-            {"Hey Chief!", 0.6, 0.4},
-            {"We have a situation in the Medical Sector.", 1.8, 0.2},
-            {"A Fleeb has pooped in the sink!", 2.0},
-        },
-        dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
-        read = false,
-    },
+    -- {
+    --     title = "A Total Mess",
+    --     description = {
+    --         {"Hey Chief!", 0.6, 0.4},
+    --         {"We have a situation in the Medical Sector.", 1.8, 0.2},
+    --         {"A Glargle has pooped in the sink!", 2.0},
+    --     },
+    --     dirtTypes = {"Glorzak", "Fleeb", "Glob"},
+    --     read = false,
+    -- },
+    -- {
+    --     title = "Sheesh!",
+    --     description = {
+    --         {"Hey Chief!", 0.6, 0.4},
+    --         {"We have a situation in the Medical Sector.", 1.8, 0.2},
+    --         {"A Fleeb has pooped in the sink!", 2.0},
+    --     },
+    --     dirtTypes = {"Glorzak", "Fleeb", "Lsorble"},
+    --     read = false,
+    -- },
 }
 scene.selectedQuest = nil
 
@@ -71,7 +71,22 @@ local buttonStyle = {
 local startWidth = 120
 local startHeight = 40
 
-function scene.enter()
+function scene.enter(finished)
+    if scene.selectedQuest and finished then
+        quests[scene.selectedQuest].done = true
+    end
+
+    local allDone = true
+    for _, quest in ipairs(quests) do
+        if not quest.done then
+            allDone = false
+            break
+        end
+    end
+    if allDone then
+        scenes.enter(scenes.storysequence, "done", scenes.exitgame)
+    end
+
     scene.selectedQuest = nil
     detailDialogBox = nil
     headsetGuySound = nil
@@ -126,6 +141,14 @@ local function getStartButtonRect()
     return x, y, startWidth, startHeight
 end
 
+local function isQuestUnlocked(idx)
+    return true
+end
+
+local function isQuestVisible(idx)
+    return not quests[idx].done and isQuestUnlocked(idx)
+end
+
 function scene.mousepressed(x, y, button)
     if button == 1 then
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
@@ -134,24 +157,28 @@ function scene.mousepressed(x, y, button)
             return
         end
 
-        for i, quest in ipairs(scene.activeQuests) do
-            local x, y, w, h = getQuestRect(i)
-            local hover = util.math.pointInRect(mx, my, x, y, w, h)
-            if hover and scene.selectedQuest ~= i then
-                scene.selectedQuest = i
-                detailDialogBox = DialogBox(quest.description, 35)
-                if headsetGuySound then
-                    headsetGuySound:stop()
-                    headsetGuySound = nil
+        local visibleIndex = 1
+        for i, quest in ipairs(quests) do
+            if isQuestVisible(i) then
+                local x, y, w, h = getQuestRect(visibleIndex)
+                local hover = util.math.pointInRect(mx, my, x, y, w, h)
+                if hover and scene.selectedQuest ~= i then
+                    scene.selectedQuest = i
+                    detailDialogBox = DialogBox(quest.description, 35)
+                    if headsetGuySound then
+                        headsetGuySound:stop()
+                        headsetGuySound = nil
+                    end
+                    if quest.read then
+                        -- efficiency first! :>
+                        detailDialogBox:finish()
+                    else
+                        headsetGuySound = assets.voiceGuyGlorzak:play()
+                        quest.read = true
+                    end
+                    break
                 end
-                if quest.read then
-                    -- efficiency first! :>
-                    detailDialogBox:finish()
-                else
-                    headsetGuySound = assets.voiceGuyGlorzak:play()
-                    quest.read = true
-                end
-                break
+                visibleIndex = visibleIndex + 1
             end
         end
 
@@ -197,19 +224,23 @@ function scene.draw(dt)
         lg.setColor(outlineColor)
         lg.rectangle("line", ox, oy, ow, oh)
 
-        for i, quest in ipairs(scene.activeQuests) do
-            local x, y, w, h = getQuestRect(i)
-            local hovered = util.math.pointInRect(mx, my, x, y, w, h)
-            local selected = scene.selectedQuest == i
-            local text = quest.title
-            if not quest.read then
-                text = "! " .. text
+        local visibleIndex = 1
+        for i, quest in ipairs(quests) do
+            if isQuestVisible(i) then
+                local x, y, w, h = getQuestRect(visibleIndex)
+                local hovered = util.math.pointInRect(mx, my, x, y, w, h)
+                local selected = scene.selectedQuest == i
+                local text = quest.title
+                if not quest.read then
+                    text = "! " .. text
+                end
+                interactable = interactable or hovered
+                -- hax, idc
+                buttonStyle.textAlign = "left"
+                gui.drawButton(text, x, y, w, h, hovered, selected, buttonStyle)
+                buttonStyle.textAlign = nil
+                visibleIndex = visibleIndex + 1
             end
-            interactable = interactable or hovered
-            -- hax, idc
-            buttonStyle.textAlign = "left"
-            gui.drawButton(text, x, y, w, h, hovered, selected, buttonStyle)
-            buttonStyle.textAlign = nil
         end
 
         -- quest details view
@@ -221,7 +252,7 @@ function scene.draw(dt)
 
         lg.setColor(textColor)
         if scene.selectedQuest then
-            local quest = scene.activeQuests[scene.selectedQuest]
+            local quest = quests[scene.selectedQuest]
             local x = dx + detailsPadding
             local y = dy + detailsPadding
             local freeWidth = dw - detailsPadding * 2

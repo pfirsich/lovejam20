@@ -66,7 +66,7 @@ end
 
 function DialogBox:isFinished()
     local line = self.lines[self.currentLine]
-    return self.currentLine == #self.lines and self.lineProgress == line.charCount
+    return self.currentLine == #self.lines and self.lineProgress >= line.charCount
 end
 
 function DialogBox:finish()

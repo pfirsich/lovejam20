@@ -222,10 +222,10 @@ function scene.tick()
         end
     end
 
-    if not tilesDirty then
+    if not tilesDirty or (DEVMODE and lk.isDown("f9")) then
         scenes.enter(scenes.query, "Job well done!", {
             {key = "return", text = "<Return> to return to Mission Control", callback = function()
-                scenes.enter(scenes.questview)
+                scenes.enter(scenes.questview, true)
             end},
         })
     end
@@ -269,7 +269,7 @@ function scene.keypressed(key)
         end
     end
 
-    if key == "backspace" then
+    if DEVMODE and key == "backspace" then
         scenes.enter(scenes.questview)
     end
 
