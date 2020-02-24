@@ -11,8 +11,8 @@ sequences = {
             {"I am the head janitor at the intergalatic space station Garzikulon Prime.", 3.8, 0.7},
             {"Only three years after basic training at the academy I reached the very top.", 4.0, 0.6},
             {"But not without a cost.", 1.5, 0.4},
-            {"Two months ago my master Rüdiger-sensei died in a mission cleaning up a Glorzag-poop spill.", 4.0, 0.8},
-            {"It was a routine job and Rüdiger-sensei was a pro.", 3.0, 0.5},
+            {"Two months ago my master Ruediger-sensei died in a mission cleaning up a Glorzag-poop spill.", 4.0, 0.8},
+            {"It was a routine job and Ruediger-sensei was a pro.", 3.0, 0.5},
             {"Something is off about this and I will figure out what it is.", 3.5, 0.5},
             {"For now though, I simply have have to do my job.", 2.5},
         },
@@ -21,18 +21,19 @@ sequences = {
     },
     archives = {
         dialog = {
-            {"The elders are impressed by my work and have decided to grant me access to the archives.", 4.0},
-            {"It is said that secrets are hidden in this sacred place which would grant the power to clean the electrons off atoms and the stars off the firmament.", 5.0},
-            {"The ultimate power to dissolve any stain and to clean order itself off the universe with only entropy left behind.", 4.5},
+            {"The elders are impressed by my work and have decided to grant me access to the archives.", 5.5, 0.7},
+            {"It is said that secrets are hidden in this sacred place which would grant the ability to clean the electrons off atoms and the stars off the firmament.", 8.5, 0.45},
+            {"The ultimate power to dissolve any stain and to clean order itself off the universe with only entropy left behind.", 7.5},
         },
-        audio = nil,
+        audio = assets.voiceArchives,
         buttonText = "Acquire Ancient Wisdoms",
     },
     done = {
         dialog = {
-            {"Alien poop: obliterated.", 1.0, 1.0},
+            {"Some days this station really gets you good.", 3.0, 0.6},
+            {"And some days I get it better.", 2.5}
         },
-        audio = nil,
+        audio = assets.voiceDone,
         buttonText = "Call It a Day",
     },
 }

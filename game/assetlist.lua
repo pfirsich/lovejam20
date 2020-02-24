@@ -48,6 +48,8 @@ return {
     assets.image("pixel"),
 
     assets.sound("voiceIntro", "hypercringe.ogg"),
+    assets.sound("voiceArchives", "cringeboogaloo.ogg"),
+    assets.sound("voiceDone", "cringomat.ogg"),
 
     assets.sound("voiceGuyGlorzak", "guy/glorzak.wav"),
 }
