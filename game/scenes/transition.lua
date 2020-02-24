@@ -11,13 +11,23 @@ local progress = 0
 
 local transitions = {}
 local transition = nil
+local disabledTransitions = {
+    "spinyBars",
+}
 
 function scene.enter(_nextScene, ...)
     nextScene = _nextScene
     nextSceneParams = {...}
     time = 0
 
-    transition = transitions[util.table.randomChoice(util.table.keys(transitions))]
+    local name
+    while true do
+        name = util.table.randomChoice(util.table.keys(transitions))
+        if not util.table.inList(disabledTransitions, name) then
+            break
+        end
+    end
+    transition = transitions[name]
     --transition = transitions.doubleCircle
 end
 
