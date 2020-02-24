@@ -106,4 +106,8 @@ function m.pointInCircle(px, py, cx, cy, radius)
     return relX*relX + relY*relY < radius*radius
 end
 
+function m.pointInRect(x, y, rx, ry, rw, rh)
+    return x > rx and x < rx + rw and y > ry and y < ry + rh
+end
+
 return m

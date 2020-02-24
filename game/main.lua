@@ -6,44 +6,7 @@ local scenes = require("scenes")
 local codex = require("codex")
 local blobtiles = require("blobtiles")
 
-assetList = {
-    assets.image("handSponge"),
-    assets.image("handCloth"),
-    assets.image("handSlorbex"),
-    assets.image("handOktoplox"),
-    assets.image("handOpen"),
-    assets.image("handPoint"),
-
-    assets.image("gaugeEmpty", "gauge2Empty.png"),
-    assets.image("gaugeSlow", "gauge2Slow.png"),
-    assets.image("gaugeMed", "gauge2Med.png"),
-    assets.image("gaugeFast", "gauge2Fast.png"),
-
-    assets.image("backgroundMetal"),
-
-    assets.image("goo", "gloop.png"),
-    assets.image("specks", "fleb.png"),
-
-    assets.image("bubble1"),
-    assets.image("bubble2"),
-
-    assets.image("squareBubble1"),
-    assets.image("squareBubble2"),
-
-    assets.image("splat1"),
-    assets.image("splat2"),
-
-    assets.image("sparkle1"),
-    assets.image("sparkle2"),
-
-    assets.sound("scrub"),
-    assets.sound("spray"),
-    assets.sound("sparkle"),
-
-    assets.font("bookfont", "Alagard.fnt"),
-    assets.image("page"),
-    assets.image("bookBack"),
-}
+local assetList = require("assetlist")
 
 function love.load(arg)
     const.reload()
@@ -58,14 +21,7 @@ function love.load(arg)
         scene.frameCounter = 0
         util.callNonNil(scene.load)
     end
-    scenes.enter(scenes.clean)
-end
-
-function love.update(dt)
-end
-
-function love.draw(dt)
-    scenes.current.draw(dt)
+    scenes.enter(scenes.questview)
 end
 
 function love.keypressed(key)
@@ -105,7 +61,6 @@ function love.run()
                 end
             end
 
-            love.update(const.simDt)
             util.callNonNil(scene.tick)
         end
 
@@ -116,7 +71,7 @@ function love.run()
 		if lg and lg.isActive() then
 			lg.origin()
 			lg.clear(lg.getBackgroundColor())
-			love.draw()
+			scene.draw(dt)
 			lg.present()
 		end
 

@@ -1,9 +1,5 @@
 from PIL import Image
-import shutil
-import os
 import sys
-
-shutil.copy(sys.argv[1], sys.argv[1] + ".bak")
 
 img = Image.open(sys.argv[1])
 img = img.convert("LA")

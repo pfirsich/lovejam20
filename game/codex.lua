@@ -99,7 +99,6 @@ function codex.init()
 
     local canvasX = pagesX * pageWidth
     local canvasY = pagesY * pageHeight
-    print(canvasX, canvasY)
     codex.pageImageCanvas = lg.newCanvas(canvasX, canvasY)
     lg.setCanvas(codex.pageImageCanvas)
     --lg.clear(0.87, 0.75, 0.59, 1)
