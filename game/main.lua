@@ -23,7 +23,6 @@ assetList = {
 
     assets.image("goo", "gloop.png"),
     assets.image("specks", "fleb.png"),
-    assets.image("transitions"),
 
     assets.image("bubble1"),
     assets.image("bubble2"),
