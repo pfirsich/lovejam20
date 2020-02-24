@@ -49,34 +49,34 @@ F to apply Shlooze
 D to apply Blinge]], 0),
     },
     {
-        recipeTitle("Prisparkartarium"),
-        recipeDirtImage("goo"),
+        recipeTitle("Glorzak Poop"),
+        recipeDirtImage("glorzak"),
         text(
 [[1. Soften using brisk scrub with Slorbex and Glab
 2. Wipe off slowly Cloth and Blinge]], 0.5),
     },
     {
-        recipeTitle("Flaglonze"),
-        recipeDirtImage("specks"),
+        recipeTitle("Ziltoid Poop"),
+        recipeDirtImage("ziltoid"),
         text("Fast scrubbing with Sponge and Shlooze", 0.5),
     },
     {
-        text("This is page 5", 0),
+        text("Empty", 0),
     },
     {
-        text("This is page 6", 0),
+        text("Empty", 0),
     },
     {
-        text("This is page 7", 0),
+        text("Empty", 0),
     },
     {
-        text("This is page 8", 0),
+        text("Empty", 0),
     },
     {
-        text("This is page 9", 0),
+        text("Empty", 0),
     },
     {
-        text("This is page 10", 0),
+        text("Empty0", 0),
     },
 }
 

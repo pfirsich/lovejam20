@@ -13,8 +13,9 @@ return {
 
     assets.image("backgroundMetal"),
 
-    assets.image("goo", "gloop.png"),
-    assets.image("specks", "fleb.png"),
+    assets.image("glorzak"),
+    assets.image("glorzakSoft"),
+    assets.image("ziltoid"),
 
     assets.image("bubble1"),
     assets.image("bubble2"),

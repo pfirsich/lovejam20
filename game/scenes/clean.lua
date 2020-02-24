@@ -39,12 +39,12 @@ local totalScrubFreqMeas = FreqMeasure(const.scrubHistoryLen, const.scrubSampleN
 
 function scene.enter()
     dirt = dirtgen.generate {
-        {dirtType = "goo", genType = "simplex", params = {
+        {dirtType = "glorzak", genType = "simplex", params = {
             scale = 2.0,
             octaves = {1.0, 0.5, 0.3},
             threshold = 0.8,
         }},
-        {dirtType = "specks", genType = "simplex", params = {
+        {dirtType = "ziltoid", genType = "simplex", params = {
             scale = 3.0,
             octaves = {1.0},
             threshold = 0.8,
@@ -350,9 +350,10 @@ function scene.draw(dt)
                     local dirtType = dirt.layerData[layerIdx].dirtType
 
                     if tile.layers[layerIdx] then
+                        local fsm = tile.layers[layerIdx].fsm
                         local bitmask = getNeighbourHoodBitmask(x, y, layerIdx)
-                        lg.setColor(tile.layers[layerIdx].fsm:getColor())
-                        lg.draw(assets[dirtType], blobtiles.getQuad(bitmask), tx, ty)
+                        lg.setColor(fsm:getColor())
+                        lg.draw(fsm:getImage(), blobtiles.getQuad(bitmask), tx, ty)
                     end
                 end
 

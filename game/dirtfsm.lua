@@ -19,7 +19,7 @@ local scrubSpeeds = {
 }
 
 local dirtFsmData = {
-    goo = {
+    glorzak = {
         states = {
             {name = "init"},
             {name = "softened", color = {1, 0, 1, 0.8}},
@@ -28,15 +28,22 @@ local dirtFsmData = {
         transitions = {
             transition("init", "softened", "slorbex", "brisk", 3.0, {"cleanerA"}),
             transition("softened", "clean", "cloth", "slow", 1.0, {"cleanerC"}),
-        }
+        },
+        images = {
+            init = "glorzak",
+            softened = "glorzakSoft",
+        },
     },
-    specks = {
+    ziltoid = {
         states = {
             {name = "init"},
             {name = "clean", color = {1, 1, 1, 0.7}},
         },
         transitions = {
             transition("init", "clean", "sponge", "fast", 1.0, {"cleanerB"}),
+        },
+        images = {
+            init = "ziltoid",
         }
     }
 }
@@ -64,7 +71,8 @@ function DirtFsm:enter(state)
 end
 
 function DirtFsm:getColor()
-    return self:getStateData().color or {1, 1, 1, 1}
+    return {1, 1, 1, 1}
+    --return self:getStateData().color or {1, 1, 1, 1}
 
     -- local totalProgress = 0
     -- local maxProgress = 0
@@ -90,6 +98,10 @@ function DirtFsm:getColor()
     -- end
 
     -- return color
+end
+
+function DirtFsm:getImage()
+    return assets[self.fsmData.images[self.state]]
 end
 
 function DirtFsm:scrub(tool, frequency)
