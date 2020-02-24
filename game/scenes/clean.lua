@@ -1,3 +1,4 @@
+local scenes = require("scenes")
 local dirtgen = require("dirtgen")
 local FreqMeasure = require("freqmeasure")
 local particles = require("particles")
@@ -274,6 +275,10 @@ function scene.keypressed(key)
         elseif key == "d" then
             applyCleaner("cleanerC")
         end
+    end
+
+    if key == "f8" then
+        scenes.enter(scenes.questview)
     end
 end
 

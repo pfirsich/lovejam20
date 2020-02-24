@@ -20,17 +20,20 @@ end
 
 local pixelCanvas = nil
 function gfx.pixelCanvas(resX, resY, clearColor, drawFunc, ...)
-    if pixelCanvas == nil then 
+    if pixelCanvas == nil then
         pixelCanvas = love.graphics.newCanvas(resX, resY)
         pixelCanvas:setFilter("nearest", "nearest")
     end
     love.graphics.setCanvas(pixelCanvas)
-    lg.clear(clearColor)
+    if clearColor then
+        love.graphics.clear(clearColor)
+    end
     drawFunc(...)
 
     love.graphics.setCanvas()
+    love.graphics.setColor(1, 1, 1)
     local x, y, scale = gfx.getPixelCanvasParams(resX, resY)
-    lg.draw(pixelCanvas, x, y, 0, scale)
+    love.graphics.draw(pixelCanvas, x, y, 0, scale)
 end
 
 return gfx

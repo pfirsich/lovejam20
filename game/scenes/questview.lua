@@ -135,12 +135,12 @@ function scene.mousepressed(x, y, button)
 
         local x, y, w, h = getStartButtonRect()
         if util.math.pointInRect(mx, my, x, y, w, h) then
-            scenes.enter(scenes.clean)
+            scenes.enter(scenes.transition, scenes.clean)
         end
     end
 end
 
-function scene.draw()
+function scene.draw(dt)
     local font = assets.computerfont
     local fontH = font:getHeight()
     lg.setFont(font)
@@ -194,7 +194,7 @@ function scene.draw()
             drawButton("Deploy", startX, startY, startWidth, startHeight,
                 "center", hovered)
         end
-    end)
+    end, dt)
 end
 
 return scene
