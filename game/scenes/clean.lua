@@ -277,7 +277,7 @@ function scene.keypressed(key)
         end
     end
 
-    if key == "f8" then
+    if key == "backspace" then
         scenes.enter(scenes.questview)
     end
 end
