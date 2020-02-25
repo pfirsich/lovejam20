@@ -38,17 +38,21 @@ function love.keypressed(key)
     if DEVMODE and key == "f7" then
         scenes.enter(scenes.clean)
     end
+
+    if DEVMODE and key == "f11" then
+        util.autoFullscreen()
+    end
 end
 
 function love.run()
-	love.load(love.arg.parseGameArguments(arg), arg)
+    love.load(love.arg.parseGameArguments(arg), arg)
 
-	-- We don't want the first frame's dt to include time taken by love.load.
-	lt.step()
+    -- We don't want the first frame's dt to include time taken by love.load.
+    lt.step()
 
-	local dt = 0
+    local dt = 0
 
-	return function()
+    return function()
         local scene = scenes.current
         while scene.simTime <= scene.realTime do
             scene.simTime = scene.simTime + const.simDt
@@ -72,17 +76,20 @@ function love.run()
             util.callNonNil(scene.tick)
         end
 
-		dt = lt.step()
+        dt = lt.step()
 
         scene.realTime = scene.realTime + dt
 
-		if lg and lg.isActive() then
-			lg.origin()
-			lg.clear(lg.getBackgroundColor())
-			scene.draw(dt)
-			lg.present()
-		end
+        if lg and lg.isActive() then
+            lg.origin()
+            lg.clear(lg.getBackgroundColor())
+            scene.draw(dt)
+            if DEVMODE then
+                lg.print(tostring(lt.getFPS()), 5, 5)
+            end
+            lg.present()
+        end
 
-		lt.sleep(0.001)
-	end
+        lt.sleep(0.001)
+    end
 end

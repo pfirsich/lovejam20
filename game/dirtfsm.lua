@@ -63,7 +63,7 @@ local dirtFsmData = {
         },
         images = {
             init = "lsorble",
-            softened = "lsorbleSoft",
+            softened = "lsorbleSoft1",
             softened2 = "lsorbleSoft2",
         },
     },
@@ -98,7 +98,7 @@ local dirtFsmData = {
         },
         images = {
             init = "flaglonz",
-            softened = "flaglonzSoft",
+            softened = "flaglonzSoft1",
             softened2 = "flaglonzSoft2",
         },
     }

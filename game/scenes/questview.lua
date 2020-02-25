@@ -114,7 +114,7 @@ local showAllQuests = false
 -- constants
 local overviewWidth = 200
 local padding = 15
-local elementHeight = 25
+local elementHeight = 40
 local elementMargin = 5
 local detailsPadding = 10
 local detailsDescriptionOffset = 30
@@ -427,10 +427,8 @@ function scene.draw(dt)
         local mx, my = util.gfx.getMouse(const.resX, const.resY)
         local handImage = interactable and assets.handPoint or assets.handOpen
         local imgW, imgH = handImage:getDimensions()
-        lg.draw(handImage, mx, my, 0, 0, imgW/2, imgH/2)
+        lg.draw(handImage, mx, my, 0, 1, 1, imgW/2, imgH/2)
     end, dt)
-
-    lg.print(tostring(lt.getFPS()), 5, 5)
 end
 
 return scene

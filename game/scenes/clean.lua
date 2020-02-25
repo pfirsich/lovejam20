@@ -43,6 +43,9 @@ function scene.enter(dirtGenParams)
         end
     end
     codex.init()
+
+    currentTool = "sponge"
+    scrubbing = false
 end
 
 -- return true if scrub in place

@@ -14,3 +14,6 @@ love_files = [
 ]
 
 icon_file = "../icon.png"
+
+[archive_files]
+"../README.md" = "README.md"
