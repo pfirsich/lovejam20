@@ -1,4 +1,4 @@
-name = "What a Mess"
+name = "What-a-Mess"
 default_targets = ["win32", "win64", "appimage"]
 build_directory = "../makelove-build"
 
@@ -10,6 +10,7 @@ love_files = [
     "-*/cringeboogaloo.wav",
     "-*/cringomat.wav",
     "-*/hypercringe.wav",
+    "-*/devmode",
 ]
 
 icon_file = "../icon.png"

@@ -19,7 +19,7 @@ local genParams = {
     flaglonz = getGenParams("flaglonz", 1.0, {1.0}, 0.5),
 }
 
-quests = {
+local quests = {
     {
         id = "tutorial",
         title = "Poop in the Sink",
@@ -98,6 +98,9 @@ quests = {
         genParams = {genParams.flaglonz, genParams.lsorble, genParams.ziltoid},
     },
 }
+
+
+--- actual vars
 scene.selectedQuest = nil
 
 local detailDialogBox = nil
@@ -107,6 +110,8 @@ local numVisits = 0
 local codexEnabled = false
 local showAllQuests = false
 
+
+-- constants
 local overviewWidth = 200
 local padding = 15
 local elementHeight = 25
@@ -301,6 +306,19 @@ function scene.mousepressed(x, y, button)
     end
 end
 
+function scene.pause()
+    if headsetGuySound then
+        headsetGuySound:pause()
+    end
+end
+
+function scene.resume()
+    if headsetGuySound then
+        -- this errors for some reason
+        -- headsetGuySound:play()
+    end
+end
+
 function scene.keypressed(key)
     if codexEnabled then
         codex.keypressed(key)
@@ -308,6 +326,17 @@ function scene.keypressed(key)
 
     if DEVMODE and key == "i" then
         showAllQuests = not showAllQuests
+    end
+
+    if key == "escape" then
+        scenes.push(scenes.query, "Close the Game?", {
+            {key = "return", text = "<Return> to close the game", callback = function()
+                love.event.push("quit")
+            end},
+            {key = "escape", text = "<Escape> to abort", callback = function()
+                scenes.pop()
+            end}
+        })
     end
 end
 

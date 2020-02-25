@@ -9,6 +9,10 @@ local blobtiles = require("blobtiles")
 local assetList = require("assetlist")
 
 function love.load(arg)
+    if not DEVMODE then
+        util.autoFullscreen()
+    end
+
     const.reload()
     assets.load(assetList)
     blobtiles.init(const.dirtTileSize)
