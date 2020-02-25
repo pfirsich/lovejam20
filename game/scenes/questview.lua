@@ -5,6 +5,20 @@ local codex = require("codex")
 
 local scene = {}
 
+local function getGenParams(dirtType, baseScale, octaves, threshold)
+    return {dirtType = dirtType, genType = "simplex", params = {
+        scale = baseScale, octaves = octaves, threshold = threshold,
+    }}
+end
+
+local genParams = {
+    glorzak = getGenParams("glorzak", 2.0, {1.0, 0.5, 0.3}, 0.8),
+    fleeb = getGenParams("fleeb", 3.0, {1.0}, 0.8),
+    lsorble = getGenParams("lsorble", 1.0, {1.0}, 0.5),
+    ziltoid = getGenParams("ziltoid", 1.0, {1.0}, 0.5),
+    flaglonz = getGenParams("flaglonz", 1.0, {1.0}, 0.5),
+}
+
 quests = {
     {
         id = "tutorial",
@@ -16,9 +30,7 @@ quests = {
         },
         audio = assets.voiceGuyGlorzak,
         dirtTypes = {"Glorzak"},
-        genParams = {
-            {"glorzak", 2.0, {1.0, 0.5, 0.3}, 0.8},
-        },
+        genParams = {genParams.glorzak},
     },
     {
         title = "Unsanitary Conditions",
@@ -29,10 +41,7 @@ quests = {
         audio = assets.voiceGuyFleeb,
         dirtTypes = {"Fleeb", "Glorzak"},
         requires = {"tutorial"},
-        genParams = {
-            {"glorzak", 2.0, {1.0, 0.5, 0.3}, 0.8},
-            {"fleeb", 3.0, {1.0}, 0.8},
-        },
+        genParams = {genParams.glorzak, genParams.fleeb},
     },
     {
         id = "archives",
@@ -46,6 +55,7 @@ quests = {
         dirtTypes = {"Fleeb", "Glorzag", "Lsorble"},
         requires = {"tutorial"},
         storySequence = "archives",
+        genParams = {genParams.glorzak, genParams.lsorble, genParams.fleeb},
     },
     {
         id = "miniboss",
@@ -59,6 +69,7 @@ quests = {
         audio = assets.voiceGuyZiltoid,
         dirtTypes = {"Flaglonz", "Ziltoid"},
         requires = {"tutorial"},
+        genParams = {genParams.flaglonz, genParams.ziltoid, genParams.flaglonz},
     },
     {
         title = "More Poop",
@@ -70,6 +81,7 @@ quests = {
         audio = assets.voiceGuyFlaglonz,
         dirtTypes = {"Flaglonz", "Fleeb"},
         requires = {"miniboss"},
+        genParams = {genParams.flaglonz, genParams.fleeb},
     },
     {
         title = "God Help Us All",
@@ -83,6 +95,7 @@ quests = {
         audio = assets.voiceGuyWalls,
         dirtTypes = {"Flaglonz", "Lsorble", "Ziltoid"},
         requires = {"miniboss"},
+        genParams = {genParams.flaglonz, genParams.lsorble, genParams.ziltoid},
     },
 }
 scene.selectedQuest = nil

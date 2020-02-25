@@ -53,8 +53,8 @@ function dirtgen.generate(layerData)
                 threshold = layerGenParams[4] or 0.5,
             },
         }
-        if lgParams.genType == "simplex" then
-            generateSimplexLayer(dirt.tiles, layerIdx, lgParams)
+        if layerGenParams.genType == "simplex" then
+            generateSimplexLayer(dirt.tiles, layerIdx, layerGenParams)
         end
     end
 

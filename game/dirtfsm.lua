@@ -97,9 +97,9 @@ local dirtFsmData = {
             transition("softened2", "clean", "sponge", "fast", 1.0, {"blinge"}),
         },
         images = {
-            init = "lsorble",
-            softened = "lsorbleSoft",
-            softened2 = "lsorbleSoft2",
+            init = "flaglonz",
+            softened = "flaglonzSoft",
+            softened2 = "flaglonzSoft2",
         },
     }
 }
