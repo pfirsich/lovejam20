@@ -84,6 +84,7 @@ local quests = {
         genParams = {genParams.flaglonz, genParams.fleeb},
     },
     {
+        id = "finalboss",
         title = "God Help Us All",
         description = {
             {"Chief!", 0.8, 0.45},
@@ -142,8 +143,10 @@ function scene.enter(finished)
     if scene.selectedQuest and finished then
         local quest = quests[scene.selectedQuest]
         quest.done = true
+
         if quest.storySequence then
             scenes.enter(scenes.storysequence, quest.storySequence, scenes.questview)
+            return
         end
     end
 
@@ -154,8 +157,10 @@ function scene.enter(finished)
             break
         end
     end
-    if allDone then
+    -- extra condition is HAX
+    if allDone or quests[#quests].done then
         scenes.enter(scenes.storysequence, "done", scenes.exitgame)
+        return
     end
 
     scene.selectedQuest = nil
