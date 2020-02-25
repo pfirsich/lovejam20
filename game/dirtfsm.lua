@@ -27,7 +27,7 @@ local dirtFsmData = {
             {name = "clean"},
         },
         transitions = {
-            transition("init", "softened", "slorbex", "brisk", 2.0, {"glab"}),
+            transition("init", "softened", "slorbex", "brisk", 1.0, {"glab"}),
             transition("softened", "clean", "cloth", "slow", 1.0, {"blinge"}),
         },
         images = {
@@ -42,7 +42,7 @@ local dirtFsmData = {
             {name = "clean"},
         },
         transitions = {
-            transition("init", "clean", "sponge", "fast", 1.0, {"shlooze"}),
+            transition("init", "clean", "sponge", "fast", 1.5, {"shlooze"}),
         },
         images = {
             init = "fleeb",
@@ -57,9 +57,9 @@ local dirtFsmData = {
             {name = "clean"},
         },
         transitions = {
-            transition("init", "softened", "oktoplox", "slow", 2.0, {"shlooze"}),
+            transition("init", "softened", "oktoplox", "slow", 1.0, {"shlooze"}),
             transition("softened", "softened2", "slorbex", "slow", 1.0, {"glab"}),
-            transition("softened2", "clean", "cloth", "fast", 2.0, {"glab"}),
+            transition("softened2", "clean", "cloth", "fast", 1.0, {"glab"}),
         },
         images = {
             init = "lsorble",
@@ -75,8 +75,8 @@ local dirtFsmData = {
             {name = "clean"},
         },
         transitions = {
-            transition("init", "softened", "oktoplox", "fast", 2.0, {"glab"}),
-            transition("softened", "clean", "oktoplox", "brisk", 2.0, {"blinge"}),
+            transition("init", "softened", "oktoplox", "fast", 1.0, {"glab"}),
+            transition("softened", "clean", "oktoplox", "brisk", 1.0, {"blinge"}),
         },
         images = {
             init = "ziltoid",
@@ -92,7 +92,7 @@ local dirtFsmData = {
             {name = "clean"},
         },
         transitions = {
-            transition("init", "softened", "sponge", "fast", 3.0, {"shlooze"}),
+            transition("init", "softened", "sponge", "fast", 1.0, {"shlooze"}),
             transition("softened", "softened2", "cloth", "fast", 1.0, {"shlooze"}),
             transition("softened2", "clean", "sponge", "fast", 1.0, {"blinge"}),
         },
