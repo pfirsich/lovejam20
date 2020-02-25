@@ -9,7 +9,11 @@ You are an elite janitor on the intergalatic space station Garzikulon Prime.
 
 Use the right tools and cleaners to get rid of nasty alien filth!
 
-Hint: Scrub back and forth with the right *frequency*!
+## Help
+* Click on the book to flip through the pages
+* Hold down the left mouse button to scrub
+* Scrub back and forth with the right *frequency* (not speed)!
+* If you want to go back to Mission Control, press *Escape*
 
 ## Credits
 * Sweet Art, Awesome Book Effect, Being a really cool dude: [Pablo Ariel Mayobre](https://github.com/pablomayobre) (Thank you, Pablo!)
