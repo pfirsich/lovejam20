@@ -19,9 +19,9 @@ class = require("libs.class")
 const = require("const")
 util = require("util")
 
-DEVMODE = true
-if lf.isFused() then
-    DEVMODE = false -- extra failsafe
+DEVMODE = lf.getInfo("devmode", "file") ~= nil
+if DEVMODE then
+    print("Starting in DEVMODE")
 end
 
 const.reload()
